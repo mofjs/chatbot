@@ -8,9 +8,23 @@ export type ChatFunction = {
 
 export const FUNCTIONS_DEFINITION: ChatFunction[] = [
   {
+    name: "now",
+    description: "Get current time",
+    parameters: {
+      type: "object",
+      properties: {
+        locale: {
+          type: "string",
+          description:
+            "A string with a BCP 47 language tag, or an array of such strings. e.g. 'id-ID' for Bahasa Indonesia.",
+        },
+      },
+    },
+  },
+  {
     name: "get_daftar_peraturan",
     description:
-      "Get list of regulations (eraturan) by it's title (judul), type (bentuk) , number (nomor) and year (tahun).",
+      "Get list of regulations (Peraturan) by it's title (judul), type (bentuk) , number (nomor) and year (tahun).",
     parameters: {
       type: "object",
       properties: {
@@ -40,5 +54,7 @@ export const FUNCTIONS_DEFINITION: ChatFunction[] = [
 ];
 
 export function callFunction(name: string, args: Record<string, unknown>) {
+  if (name === "now")
+    return new Date().toLocaleString(args["locale"] as string);
   if (name === "get_daftar_peraturan") return getDaftarPeraturan(args);
 }
