@@ -1,4 +1,4 @@
-export type GetDaftarPeraturanParams = {
+type GetDaftarPeraturanParams = {
   judul?: string;
   bentuk?: "uu" | "perppu" | "pp" | "perpres" | "pmk";
   nomor?: number;
@@ -13,6 +13,36 @@ const MAP_BENTUK: Record<string, number> = {
   perppu: 32,
   perpres: 31,
   pmk: 20,
+};
+
+export const GET_DAFTAR_PERATURAN_DEF = {
+  name: "get_daftar_peraturan",
+  description:
+    "Get list of regulations (Peraturan) by it's title (judul), type (bentuk) , number (nomor) and year (tahun).",
+  parameters: {
+    type: "object",
+    properties: {
+      judul: {
+        type: "string",
+        description:
+          "The title (judul) you want to look-up. e.g. 'Pajak PPh 21'",
+      },
+      bentuk: {
+        type: "string",
+        enum: ["uu", "perppu", "pp", "perpres", "pmk"],
+        description:
+          "Filter the result by it's type (bentuk) of the regulation (peraturan). eg. 'uu' for Undang-Undang, 'pp' for Peraturan Pemerintah, 'perpres' for Peraturan Presiden and 'pmk' for Peraturan Menteri Keuangan",
+      },
+      nomor: {
+        type: "number",
+        description: "Filter the result by it's number (nomor) of regulation.",
+      },
+      tahun: {
+        type: "number",
+        description: "Filter the result by it's year (tahun) of regulation.",
+      },
+    },
+  },
 };
 
 export async function getDaftarPeraturan({

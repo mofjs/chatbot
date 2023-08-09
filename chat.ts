@@ -76,7 +76,7 @@ export async function chat(
   }
   const { functions_definition, call_function, ...chatOptions } = options ?? {};
   const response = await api(messages, functions_definition ?? [], chatOptions);
-  const choice = response.choices.pop();
+  const choice = response.choices?.pop();
   if (!choice) throw new Error("No response choices found.");
   const message = choice.message;
   if (message.function_call) {

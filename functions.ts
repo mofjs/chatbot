@@ -1,4 +1,5 @@
-import { getDaftarPeraturan } from "./jdih.ts";
+import { DDG_SEARCH_DEF, ddg_search } from "./ddg.ts";
+import { GET_DAFTAR_PERATURAN_DEF, getDaftarPeraturan } from "./jdih.ts";
 
 export type ChatFunction = {
   name: string;
@@ -21,40 +22,13 @@ export const FUNCTIONS_DEFINITION: ChatFunction[] = [
       },
     },
   },
-  {
-    name: "get_daftar_peraturan",
-    description:
-      "Get list of regulations (Peraturan) by it's title (judul), type (bentuk) , number (nomor) and year (tahun).",
-    parameters: {
-      type: "object",
-      properties: {
-        judul: {
-          type: "string",
-          description:
-            "The title (judul) you want to look-up. e.g. 'Pajak PPh 21'",
-        },
-        bentuk: {
-          type: "string",
-          enum: ["uu", "perppu", "pp", "perpres", "pmk"],
-          description:
-            "Filter the result by it's type (bentuk) of the regulation (peraturan). eg. 'uu' for Undang-Undang, 'pp' for Peraturan Pemerintah, 'perpres' for Peraturan Presiden and 'pmk' for Peraturan Menteri Keuangan",
-        },
-        nomor: {
-          type: "number",
-          description:
-            "Filter the result by it's number (nomor) of regulation.",
-        },
-        tahun: {
-          type: "number",
-          description: "Filter the result by it's year (tahun) of regulation.",
-        },
-      },
-    },
-  },
+  GET_DAFTAR_PERATURAN_DEF,
+  DDG_SEARCH_DEF
 ];
 
 export function callFunction(name: string, args: Record<string, unknown>) {
   if (name === "now")
     return new Date().toLocaleString(args["locale"] as string);
-  if (name === "get_daftar_peraturan") return getDaftarPeraturan(args);
+  if (name === GET_DAFTAR_PERATURAN_DEF.name) return getDaftarPeraturan(args);
+  if (name === DDG_SEARCH_DEF.name) return ddg_search(args)
 }
