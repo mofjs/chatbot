@@ -12,9 +12,8 @@ function main(_args: string[]) {
   };
   socket.onmessage = async (ev) => {
     const message = JSON.parse(ev.data);
-    console.log({ message });
     const reply = await assistant(message);
-    if (reply) socket.send(reply);
+    if (reply) socket.send(JSON.stringify(reply));
   };
   socket.onclose = (_ev) => {
     console.log("Connection closed!");
