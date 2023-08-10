@@ -7,7 +7,7 @@ const SELF_JID = PHONE_NUMBER + "@s.whatsapp.net";
 const SYSTEM_MESSAGES: ChatMessage[] = [
   {
     role: "system",
-    content: "You are a helpful assistant named InoxBot.",
+    content: "You are a helpful assistant named AsistenKeu.",
   },
   {
     role: "system",
@@ -27,7 +27,7 @@ export async function assistant(message: Message): Promise<Reply | void> {
       content:
         message?.extendedTextMessage?.text?.replaceAll(
           "@" + PHONE_NUMBER,
-          "InoxBot"
+          "AsistenKeu"
         ) ?? "",
     }));
     const text = await chat([...SYSTEM_MESSAGES, ...chats], {
