@@ -10,8 +10,6 @@ export type Reply = [AnyMessageContent, MiscMessageGenerationOptions?];
 
 const API_URL = "http://localhost:3000/messages/";
 
-const REMOTE_JID = Deno.env.get("REMOTE_JID")!;
-
 export async function getMessage(jid: string, mid: string): Promise<Message> {
   const response = await fetch(API_URL + `${jid}/${mid}`);
   if (!response.ok) throw new Error("Response status is not OK.");
@@ -21,10 +19,11 @@ export async function getMessage(jid: string, mid: string): Promise<Message> {
 export async function getQuotedMessages(message: Message) {
   const result = [message];
   while (true) {
-    const id =
-      result.at(0)?.message?.extendedTextMessage?.contextInfo?.stanzaId;
+    const first = result.at(0);
+    const remoteJid = first?.key.remoteJid ?? "";
+    const id = first?.message?.extendedTextMessage?.contextInfo?.stanzaId;
     if (!id) break;
-    const message = await getMessage(REMOTE_JID, id);
+    const message = await getMessage(remoteJid, id);
     result.unshift(message);
   }
   return result;
