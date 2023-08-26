@@ -31,7 +31,8 @@ export async function getQuotedMessages(message: Message) {
     const id = first?.message?.extendedTextMessage?.contextInfo?.stanzaId;
     if (!id) break;
     const message = await getMessage(remoteJid, id);
-    if (message) result.unshift(message);
+    if (!message) break;
+    result.unshift(message);
   }
   return result;
 }
