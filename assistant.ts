@@ -43,7 +43,7 @@ export class Assistant {
     };
     socket.onclose = (_ev) => {
       console.log(`Connection closed to messages from ${this.jid}!`);
-      this.connect();
+      this.socket = this.connect();
     };
     return socket;
   }
@@ -61,9 +61,7 @@ export class Assistant {
       contextInfo?.mentionedJid?.includes(SELF_JID) ||
       contextInfo?.participant === SELF_JID
     ) {
-      const messages = await getQuotedMessages(messageInfo).catch(
-        () => [messageInfo]
-      );
+      const messages = await getQuotedMessages(messageInfo);
       const chats: ChatMessage[] = messages.map(({ key, message }) => ({
         role: key.fromMe ? "assistant" : "user",
         content: message?.extendedTextMessage?.text?.replaceAll(
