@@ -1,3 +1,4 @@
+import ReconnectingWebsocket from "reconnecting-websocket";
 import { chat, ChatMessage } from "./chat.ts";
 import { getQuotedMessages, Message, Reply } from "./wa.ts";
 import { callFunction, FUNCTIONS_DEFINITION } from "./functions.ts";
@@ -22,7 +23,7 @@ const WEBSOCKET_URL = "ws://localhost:3000/";
 
 export class Assistant {
   private privateMode: boolean;
-  private socket: WebSocket;
+  private socket: ReconnectingWebsocket;
   private chatHistory: ChatMessage[];
   private debounceId?: number;
 
@@ -33,7 +34,7 @@ export class Assistant {
   }
 
   private connect() {
-    const socket = new WebSocket(WEBSOCKET_URL + this.jid);
+    const socket = new ReconnectingWebsocket(WEBSOCKET_URL + this.jid);
     socket.onopen = (_ev) => {
       console.log(`Assitant listening to messages from ${this.jid}!`);
     };
@@ -43,7 +44,6 @@ export class Assistant {
     };
     socket.onclose = (_ev) => {
       console.log(`Connection closed to messages from ${this.jid}!`);
-      this.socket = this.connect();
     };
     return socket;
   }
@@ -64,10 +64,11 @@ export class Assistant {
       const messages = await getQuotedMessages(messageInfo);
       const chats: ChatMessage[] = messages.map(({ key, message }) => ({
         role: key.fromMe ? "assistant" : "user",
-        content: message?.extendedTextMessage?.text?.replaceAll(
-          SELF_MENTION,
-          BOT_NAME,
-        ) ?? "",
+        content:
+          message?.extendedTextMessage?.text?.replaceAll(
+            SELF_MENTION,
+            BOT_NAME
+          ) ?? "",
       }));
       const text = await chat([...SYSTEM_MESSAGES, ...chats], {
         max_tokens: 500,
@@ -79,14 +80,13 @@ export class Assistant {
   }
 
   private async replyPrivate(messageInfo: Message) {
-    const content = messageInfo.message?.conversation ??
-      messageInfo.message?.extendedTextMessage?.text ?? "";
+    const content =
+      messageInfo.message?.conversation ??
+      messageInfo.message?.extendedTextMessage?.text ??
+      "";
     this.chatHistory.push({
       role: "user",
-      content: content.replaceAll(
-        SELF_MENTION,
-        BOT_NAME,
-      ) ?? "",
+      content: content.replaceAll(SELF_MENTION, BOT_NAME) ?? "",
     });
     const text = await this.debouncedChat([
       ...SYSTEM_MESSAGES,

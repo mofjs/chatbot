@@ -2,7 +2,7 @@ import {
   AnyMessageContent,
   MiscMessageGenerationOptions,
   WAProto,
-} from "https://esm.sh/@whiskeysockets/baileys@6.4.0?external=jimp,sharp";
+} from "@whiskeysockets/baileys";
 
 export type Message = WAProto.IWebMessageInfo;
 
