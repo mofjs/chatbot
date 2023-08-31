@@ -52,10 +52,22 @@ export async function getDaftarPeraturan({
   tahun,
 }: GetDaftarPeraturanParams) {
   const params = new URLSearchParams();
+  params.append("limit", "3");
   judul && params.append("search", judul);
   bentuk && params.append("bentuk", MAP_BENTUK[bentuk].toString());
   nomor && params.append("nomor", nomor.toString());
   tahun && params.append("tahun", tahun.toString());
   const response = await fetch(JDIH_API_URL + "?" + params);
-  if (response.ok) return response.json();
+  if (response.ok) {
+    const response2 = await response.json();
+    return response2["Data"].map((item: any)=> {
+      return {
+        Judul: item?.Judul,
+        Nomor: item?.Nomor,
+        TanggalPenetapan: item?.TanggalPenetapan,
+        Status: item?.IsBerlaku ? "Berlaku": "Dicabut",
+        URL: "https://jdih.kemenkeu.go.id/in/dokumen/peraturan/" + item?.PeraturanId,
+      }
+    })
+  }
 }

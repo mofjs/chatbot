@@ -17,6 +17,10 @@ const SYSTEM_MESSAGES: ChatMessage[] = [
     role: "system",
     content: "Only answer in 50 words or less.",
   },
+  {
+    role: "system",
+    content: "Prioritize to answer using function call named get_knowledge.",
+  }
 ];
 
 const WEBSOCKET_URL = "ws://localhost:3000/";
