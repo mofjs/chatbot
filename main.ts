@@ -1,15 +1,15 @@
-import "https://deno.land/std@0.196.0/dotenv/load.ts";
-import { Assistant } from "./assistant.ts";
+/// <reference no-default-lib="true" />
+/// <reference lib="dom" />
+/// <reference lib="dom.iterable" />
+/// <reference lib="dom.asynciterable" />
+/// <reference lib="deno.ns" />
 
-const REMOTE_JIDS = Deno.env.get("REMOTE_JIDS");
+import "$std/dotenv/load.ts";
 
-function main(_args: string[]) {
-  const jids = REMOTE_JIDS?.split(",").map((jid) => jid.trim());
-  jids?.forEach((jid) => {
-    new Assistant(jid);
-  });
-}
+import { start } from "$fresh/server.ts";
+import manifest from "./fresh.gen.ts";
+import config from "./fresh.config.ts";
+import { Context } from "./lib/context/mod.ts";
 
-if (import.meta.main) {
-  main(Deno.args);
-}
+await Context.init();
+await start(manifest, config);

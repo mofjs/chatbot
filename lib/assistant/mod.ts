@@ -1,7 +1,7 @@
 import ReconnectingWebsocket from "reconnecting-websocket";
 import { chat, ChatMessage } from "./chat.ts";
 import { getQuotedMessages, Message, Reply } from "./wa.ts";
-import { callFunction, FUNCTIONS_DEFINITION } from "./functions.ts";
+import { callFunction, FUNCTIONS_DEFINITION } from "../functions/mod.ts";
 
 const BOT_NAME = Deno.env.get("BOT_NAME") ?? "AsistenKeu";
 const PHONE_NUMBER = Deno.env.get("PHONE_NUMBER");
