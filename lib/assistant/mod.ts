@@ -19,7 +19,7 @@ const SYSTEM_MESSAGES: ChatMessage[] = [
   },
   {
     role: "system",
-    content: "Prioritize to answer using function call named get_knowledge.",
+    content: "Answer the question in Bahasa Indonesia or Javanese."
   }
 ];
 
@@ -94,7 +94,7 @@ export class Assistant {
     });
     const text = await this.debouncedChat([
       ...SYSTEM_MESSAGES,
-      ...this.chatHistory,
+      ...this.chatHistory.slice(0,5),
     ]);
     this.chatHistory.push({
       role: "assistant",
@@ -117,7 +117,7 @@ export class Assistant {
         } catch (error) {
           resolve(`[ERROR] ${error}.`);
         }
-      }, 3000);
+      }, 1000);
     });
   }
 }
