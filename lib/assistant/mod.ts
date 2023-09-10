@@ -94,7 +94,7 @@ export class Assistant {
     });
     const text = await this.debouncedChat([
       ...SYSTEM_MESSAGES,
-      ...this.chatHistory.slice(0,5),
+      ...this.chatHistory.slice(-5),
     ]);
     this.chatHistory.push({
       role: "assistant",
