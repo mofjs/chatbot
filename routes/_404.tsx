@@ -1,27 +1,22 @@
 import { Head } from "$fresh/runtime.ts";
+import { UnknownPageProps } from "$fresh/server.ts";
 
-export default function Error404() {
+export default function Error404({ url }: UnknownPageProps) {
   return (
     <>
       <Head>
         <title>404 - Page not found</title>
       </Head>
-      <div class="px-4 py-8 mx-auto bg-[#86efac]">
-        <div class="max-w-screen-md mx-auto flex flex-col items-center justify-center">
-          <img
-            class="my-6"
-            src="/logo.svg"
-            width="128"
-            height="128"
-            alt="the Fresh logo: a sliced lemon dripping with juice"
-          />
-          <h1 class="text-4xl font-bold">404 - Page not found</h1>
-          <p class="my-4">
-            The page you were looking for doesn't exist.
+      <article style={{ textAlign: "center" }}>
+        <hgroup>
+          <h1>Error 404</h1>
+          <p>
+            The page <code>{url.toString()}</code> you are looking for is not found. <br />
+            Check your link again, or try going to the home page.
           </p>
-          <a href="/" class="underline">Go back home</a>
-        </div>
-      </div>
+        </hgroup>
+        <a href="/">Back to Home!</a>
+      </article>
     </>
   );
 }

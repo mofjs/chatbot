@@ -5,24 +5,12 @@ export default defineApp((_req, { Component }) => (
     <head>
       <meta charSet="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>My Chatbot</title>
+      <title>Chatbot</title>
       <link rel="stylesheet" href="/pico.min.css" />
+      <link rel="stylesheet" href="/style.css" />
     </head>
     <body>
-      <nav className="container-fluid">
-        <ul>
-          <li>
-            <a href="/" className="contrast">
-              <strong>
-                My Chatbot
-              </strong>
-            </a>
-          </li>
-        </ul>
-      </nav>
-      <main className="container">
-        <Component />
-      </main>
+      <Component />
     </body>
   </html>
 ));
