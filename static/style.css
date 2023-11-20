@@ -27,3 +27,7 @@ article.auth>div:nth-of-type(2) {
     display: block;
   }
 }
+
+.danger {
+  color: var(--del-color);
+}
