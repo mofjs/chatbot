@@ -1,8 +1,7 @@
 import { defineLayout } from "$fresh/server.ts";
 
 export default defineLayout<Record<string, unknown>>(
-  (_req, { Component, state }) => {
-    const username = state.username as string | undefined;
+  (_req, { Component }) => {
     return (
       <>
         <header className="container-fluid">
@@ -14,9 +13,16 @@ export default defineLayout<Record<string, unknown>>(
             </ul>
             <ul>
               <li>
-                {username
-                  ? <a href="/account">{username}</a>
-                  : <a href="/login" role="button">Login</a>}
+                <a href="/">Dashboard</a>
+              </li>
+              <li>
+                <a href="/assistants">Assistants</a>
+              </li>
+              <li>
+                <a href="/chats">Chats</a>
+              </li>
+              <li>
+                <a href="/settings">Settings</a>
               </li>
             </ul>
           </nav>

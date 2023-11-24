@@ -1,33 +1,5 @@
-body>header {
-  padding-top: 0;
-}
-
+body>header,
 body>footer {
+  padding-top: 0;
   padding-bottom: 0;
-}
-
-article.auth {
-  padding: 0;
-  overflow: hidden;
-}
-
-article.auth>div {
-  padding: var(--block-spacing-vertical) var(--block-spacing-horizontal);
-}
-
-article.auth>div:nth-of-type(2) {
-  display: none;
-  background-image: url("https://picsum.photos/600");
-  background-size: cover;
-  background-position: center;
-}
-
-@media (min-width: 992px) {
-  article.auth>div:nth-of-type(2) {
-    display: block;
-  }
-}
-
-.danger {
-  color: var(--del-color);
 }

@@ -1,35 +1,29 @@
 import { MiddlewareHandlerContext } from "$fresh/server.ts";
-import { CookieMap, mergeHeaders } from "$std/http/unstable_cookie_map.ts";
+import { env } from "../utils/env.ts";
 
-async function cookieMiddleware(req: Request, ctx: MiddlewareHandlerContext) {
-  if (ctx.destination === "route") {
-    ctx.state.cookies = new CookieMap(req, { secure: true });
-    const resp = await ctx.next();
-    return new Response(resp.body, {
-      status: resp.status,
-      statusText: resp.statusText,
-      headers: mergeHeaders(resp.headers, ctx.state.cookies as CookieMap),
-    });
-  }
-  return ctx.next();
-}
-
-async function sessionMiddleware(_req: Request, ctx: MiddlewareHandlerContext) {
-  if (ctx.destination === "route" && ctx.state.cookies) {
-    const cookies = ctx.state.cookies as CookieMap;
-    const sid = cookies.get("sid");
-    if (sid) {
-      const kv = await Deno.openKv();
-      const sessionEntry = await kv.get(["session", sid]);
-      if (typeof sessionEntry.value === "string") {
-        ctx.state.session = JSON.parse(sessionEntry.value);
-      }
-      kv.close();
-    } else {
-      cookies.set("sid", crypto.randomUUID());
+function basicAuthMiddleware(
+  req: Request,
+  ctx: MiddlewareHandlerContext,
+) {
+  const authorization = req.headers.get("authorization");
+  if (authorization) {
+    const match = authorization.match(/^Basic\s+(.*)$/);
+    if (match) {
+      const [username, password] = atob(match[1]).split(":");
+      if (
+        username === env.WEB_ADMIN_USERNAME &&
+        password === env.WEB_ADMIN_PASSWORD
+      ) return ctx.next();
     }
   }
-  return ctx.next();
+
+  return new Response("401 Unauthorized", {
+    status: 401,
+    statusText: "Unauthorized",
+    headers: {
+      "www-authenticate": `Basic realm="Admin only."`,
+    },
+  });
 }
 
-export const handler = [cookieMiddleware, sessionMiddleware];
+export const handler = [basicAuthMiddleware];
