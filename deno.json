@@ -18,7 +18,8 @@
     "$std/": "https://deno.land/std@0.206.0/",
     "@whiskeysockets/baileys": "https://esm.sh/@whiskeysockets/baileys@6.4.0?external=jimp,sharp",
     "reconnecting-websocket": "https://esm.sh/reconnecting-websocket@4.4.0",
-    "zod": "https://deno.land/x/zod@v3.22.4/mod.ts"
+    "zod": "https://deno.land/x/zod@v3.22.4/mod.ts",
+    "openai": "npm:openai@4.20.0"
   },
   "compilerOptions": { "jsx": "react-jsx", "jsxImportSource": "preact" },
   "exclude": ["**/_fresh/*"]
