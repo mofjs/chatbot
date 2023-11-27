@@ -7,12 +7,13 @@ import * as $1 from "./routes/_500.tsx";
 import * as $2 from "./routes/_app.tsx";
 import * as $3 from "./routes/_layout.tsx";
 import * as $4 from "./routes/_middleware.ts";
-import * as $5 from "./routes/assistants/_layout.tsx";
-import * as $6 from "./routes/assistants/create.tsx";
-import * as $7 from "./routes/assistants/index.tsx";
-import * as $8 from "./routes/chats/_layout.tsx";
-import * as $9 from "./routes/chats/index.tsx";
-import * as $10 from "./routes/index.tsx";
+import * as $5 from "./routes/assistants/[id]/index.tsx";
+import * as $6 from "./routes/assistants/_layout.tsx";
+import * as $7 from "./routes/assistants/create.tsx";
+import * as $8 from "./routes/assistants/index.tsx";
+import * as $9 from "./routes/chats/_layout.tsx";
+import * as $10 from "./routes/chats/index.tsx";
+import * as $11 from "./routes/index.tsx";
 
 const manifest = {
   routes: {
@@ -21,12 +22,13 @@ const manifest = {
     "./routes/_app.tsx": $2,
     "./routes/_layout.tsx": $3,
     "./routes/_middleware.ts": $4,
-    "./routes/assistants/_layout.tsx": $5,
-    "./routes/assistants/create.tsx": $6,
-    "./routes/assistants/index.tsx": $7,
-    "./routes/chats/_layout.tsx": $8,
-    "./routes/chats/index.tsx": $9,
-    "./routes/index.tsx": $10,
+    "./routes/assistants/[id]/index.tsx": $5,
+    "./routes/assistants/_layout.tsx": $6,
+    "./routes/assistants/create.tsx": $7,
+    "./routes/assistants/index.tsx": $8,
+    "./routes/chats/_layout.tsx": $9,
+    "./routes/chats/index.tsx": $10,
+    "./routes/index.tsx": $11,
   },
   islands: {},
   baseUrl: import.meta.url,

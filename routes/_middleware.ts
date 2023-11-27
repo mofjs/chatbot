@@ -1,5 +1,5 @@
 import { MiddlewareHandlerContext } from "$fresh/server.ts";
-import { env } from "../utils/env.ts";
+import { env } from "~/utils/env.ts";
 
 function basicAuthMiddleware(
   req: Request,

@@ -1,7 +1,15 @@
 import { Handlers } from "$fresh/server.ts";
-import { openai } from "../../utils/openai.ts";
+import { z } from "zod";
+import { openai } from "~/utils/openai.ts";
 
 const DEFAULT_MODEL = "gpt-3.5-turbo";
+
+const assistantCreateSchema = z.object({
+  name: z.string().max(256).optional(),
+  description: z.string().max(512).optional(),
+  instructions: z.string().max(32768).optional(),
+  model: z.string(),
+});
 
 export const handler: Handlers = {
   GET(_req, ctx) {
@@ -9,7 +17,14 @@ export const handler: Handlers = {
   },
   async POST(req, ctx) {
     const formData = await req.formData();
-    return new Response(null, { headers: { location: "/assistants" } });
+    const parseResult = await assistantCreateSchema.safeParseAsync(
+      Object.fromEntries(formData),
+    );
+    if (!parseResult.success) {
+      return ctx.render({}, { status: 400 });
+    }
+    await openai.beta.assistants.create(parseResult.data);
+    return Response.redirect(new URL("/assistants", req.url), 302);
   },
 };
 
@@ -61,6 +76,8 @@ export default async function CreateAssistantPage() {
             ))}
           </select>
         </label>
+        <button type="submit">Create!</button>
+        <button type="reset" className="contrast">Cancel</button>
       </form>
     </>
   );
