@@ -2,36 +2,38 @@
 // This file SHOULD be checked into source version control.
 // This file is automatically updated during development when running `dev.ts`.
 
-import * as $0 from "./routes/_404.tsx";
-import * as $1 from "./routes/_500.tsx";
-import * as $2 from "./routes/_app.tsx";
-import * as $3 from "./routes/_layout.tsx";
-import * as $4 from "./routes/_middleware.ts";
-import * as $5 from "./routes/assistants/[id]/index.tsx";
-import * as $6 from "./routes/assistants/_layout.tsx";
-import * as $7 from "./routes/assistants/create.tsx";
-import * as $8 from "./routes/assistants/index.tsx";
-import * as $9 from "./routes/chats/_layout.tsx";
-import * as $10 from "./routes/chats/index.tsx";
-import * as $11 from "./routes/index.tsx";
+import * as $_404 from "./routes/_404.tsx";
+import * as $_500 from "./routes/_500.tsx";
+import * as $_app from "./routes/_app.tsx";
+import * as $_layout from "./routes/_layout.tsx";
+import * as $_middleware from "./routes/_middleware.ts";
+import * as $assistants_id_index from "./routes/assistants/[id]/index.tsx";
+import * as $assistants_layout from "./routes/assistants/_layout.tsx";
+import * as $assistants_create from "./routes/assistants/create.tsx";
+import * as $assistants_index from "./routes/assistants/index.tsx";
+import * as $chats_layout from "./routes/chats/_layout.tsx";
+import * as $chats_index from "./routes/chats/index.tsx";
+import * as $index from "./routes/index.tsx";
+
+import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {
   routes: {
-    "./routes/_404.tsx": $0,
-    "./routes/_500.tsx": $1,
-    "./routes/_app.tsx": $2,
-    "./routes/_layout.tsx": $3,
-    "./routes/_middleware.ts": $4,
-    "./routes/assistants/[id]/index.tsx": $5,
-    "./routes/assistants/_layout.tsx": $6,
-    "./routes/assistants/create.tsx": $7,
-    "./routes/assistants/index.tsx": $8,
-    "./routes/chats/_layout.tsx": $9,
-    "./routes/chats/index.tsx": $10,
-    "./routes/index.tsx": $11,
+    "./routes/_404.tsx": $_404,
+    "./routes/_500.tsx": $_500,
+    "./routes/_app.tsx": $_app,
+    "./routes/_layout.tsx": $_layout,
+    "./routes/_middleware.ts": $_middleware,
+    "./routes/assistants/[id]/index.tsx": $assistants_id_index,
+    "./routes/assistants/_layout.tsx": $assistants_layout,
+    "./routes/assistants/create.tsx": $assistants_create,
+    "./routes/assistants/index.tsx": $assistants_index,
+    "./routes/chats/_layout.tsx": $chats_layout,
+    "./routes/chats/index.tsx": $chats_index,
+    "./routes/index.tsx": $index,
   },
   islands: {},
   baseUrl: import.meta.url,
-};
+} satisfies Manifest;
 
 export default manifest;
