@@ -2,7 +2,7 @@ import { defineLayout } from "$fresh/server.ts";
 
 export default defineLayout((_req, { Component }) => {
   return (
-    <article className="grid">
+    <article>
       <hgroup>
         <h1>Chats</h1>
         <p>

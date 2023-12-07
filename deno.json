@@ -17,10 +17,11 @@
     "@preact/signals": "https://esm.sh/*@preact/signals@1.2.1",
     "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.5.0",
     "$std/": "https://deno.land/std@0.208.0/",
-    "@whiskeysockets/baileys": "https://esm.sh/@whiskeysockets/baileys@6.4.0?external=jimp,sharp",
+    "@whiskeysockets/baileys": "https://esm.sh/@whiskeysockets/baileys@6.5.0?external=jimp,sharp",
     "reconnecting-websocket": "https://esm.sh/reconnecting-websocket@4.4.0",
     "zod": "https://deno.land/x/zod@v3.22.4/mod.ts",
-    "openai": "npm:openai@4.20.1"
+    "openai": "npm:openai@4.20.1",
+    "mqtt": "https://esm.sh/mqtt@5.3.3"
   },
   "compilerOptions": { "jsx": "react-jsx", "jsxImportSource": "preact" },
   "exclude": ["**/_fresh/*"]
