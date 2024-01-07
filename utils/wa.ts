@@ -2,7 +2,6 @@ import { z } from "zod";
 import mqtt from "mqtt";
 import { env } from "~/utils/env.ts";
 
-export type WAMessage = z.infer<typeof WAMessageSchema>;
 export const WAMessageSchema = z.object({
   key: z.object({ remoteJid: z.string().optional() }),
   message: z.object({
@@ -17,6 +16,8 @@ export const WAMessageSchema = z.object({
     }).optional().nullable(),
   }),
 });
+
+export type WAMessage = z.infer<typeof WAMessageSchema>;
 
 let client: mqtt.MqttClient;
 

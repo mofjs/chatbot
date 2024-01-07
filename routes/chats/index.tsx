@@ -1,8 +1,8 @@
 import { defineRoute } from "$fresh/src/server/defines.ts";
-import { get_chats } from "~/utils/chats.ts";
+import { getChats } from "~/utils/chats.ts";
 
 export default defineRoute(async (req, ctx) => {
-  const chats = await get_chats();
+  const chats = await getChats();
   return (
     <>
       <a role="button" href="/chats/create">Create</a>
@@ -16,14 +16,14 @@ export default defineRoute(async (req, ctx) => {
           </tr>
         </thead>
         <tbody>
-          {chats.map((chat, index) => {
+          {chats.map((chat, index) => (
             <tr>
               <th scope="row">{index + 1}</th>
               <td>{chat.jid}</td>
               <td>{chat.assistant_id}</td>
               <td>{chat.reply_to}</td>
-            </tr>;
-          })}
+            </tr>
+          ))}
           {!chats.length && (
             <tr>
               <td colSpan={4}>
