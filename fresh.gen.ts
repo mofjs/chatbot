@@ -12,6 +12,7 @@ import * as $assistants_layout from "./routes/assistants/_layout.tsx";
 import * as $assistants_create from "./routes/assistants/create.tsx";
 import * as $assistants_index from "./routes/assistants/index.tsx";
 import * as $chats_layout from "./routes/chats/_layout.tsx";
+import * as $chats_create from "./routes/chats/create.tsx";
 import * as $chats_index from "./routes/chats/index.tsx";
 import * as $index from "./routes/index.tsx";
 
@@ -29,6 +30,7 @@ const manifest = {
     "./routes/assistants/create.tsx": $assistants_create,
     "./routes/assistants/index.tsx": $assistants_index,
     "./routes/chats/_layout.tsx": $chats_layout,
+    "./routes/chats/create.tsx": $chats_create,
     "./routes/chats/index.tsx": $chats_index,
     "./routes/index.tsx": $index,
   },
