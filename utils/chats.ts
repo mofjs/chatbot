@@ -7,8 +7,8 @@ export const chatSchema = z.object({
     z.string().regex(/\d+-\d+@g\.us/),
   ]),
   name: z.string().min(5).max(255),
-  assistant_id: z.string().optional(),
-  thread_id: z.string().optional(),
+  assistant_id: z.string(),
+  thread_id: z.string(),
   reply_to: z.enum(["all", "mentions", "quotes", "mentions_or_quotes", "none"]),
 });
 

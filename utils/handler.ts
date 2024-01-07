@@ -1,5 +1,5 @@
 import { env } from "~/utils/env.ts";
-import { getChat, setChat } from "~/utils/chats.ts";
+import { getChat } from "~/utils/chats.ts";
 import { openai } from "~/utils/openai.ts";
 import { send, WAMessage } from "~/utils/wa.ts";
 
@@ -23,23 +23,15 @@ export async function handle_message(waMessage: WAMessage) {
     role: "user" as const,
     content,
   };
-  if (!chat.thread_id) {
-    const thread = await openai.beta.threads.create({
-      messages: [message],
-    });
-    chat.thread_id = thread.id;
-    await setChat(chat);
-  } else {
-    const runs = await openai.beta.threads.runs.list(chat.thread_id, {
-      order: "desc",
-    });
-    for (const run of runs.data) {
-      if (run.status === "in_progress") {
-        await openai.beta.threads.runs.cancel(chat.thread_id, run.id);
-      }
+  const runs = await openai.beta.threads.runs.list(chat.thread_id, {
+    order: "desc",
+  });
+  for (const run of runs.data) {
+    if (run.status === "in_progress") {
+      await openai.beta.threads.runs.cancel(chat.thread_id, run.id);
     }
-    await openai.beta.threads.messages.create(chat.thread_id, message);
   }
+  await openai.beta.threads.messages.create(chat.thread_id, message);
   const run = await openai.beta.threads.runs.create(chat.thread_id, {
     assistant_id: chat.assistant_id,
   });

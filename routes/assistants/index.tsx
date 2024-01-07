@@ -6,7 +6,7 @@ export default defineRoute(async (req, ctx) => {
   return (
     <>
       <a role="button" href="/assistants/create">Create new Assistant.</a>
-      <table>
+      <table className="striped">
         <thead>
           <tr>
             <th scope="col">#</th>
@@ -23,7 +23,9 @@ export default defineRoute(async (req, ctx) => {
                   <h2>
                     <a href={`/assistants/${a.id}`}>{a.name}</a>
                   </h2>
-                  <p>{a.description}</p>
+                  <p
+                    dangerouslySetInnerHTML={{ __html: a.description ?? "" }}
+                  />
                 </hgroup>
               </td>
               <td>

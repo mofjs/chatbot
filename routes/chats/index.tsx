@@ -6,7 +6,7 @@ export default defineRoute(async (req, ctx) => {
   return (
     <>
       <a role="button" href="/chats/create">Create</a>
-      <table>
+      <table className="striped">
         <thead>
           <tr>
             <th scope="col">#</th>

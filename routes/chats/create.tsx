@@ -70,12 +70,12 @@ export default function CreateChatPage(
             defaultValue={formData?.get("jid")?.toString()}
           />
         </label>
-        <label htmlFor="assistant-input">
+        <label htmlFor="assistant_id-input">
           Assistant
           <select
-            name="assistant"
-            id="assistant-input"
-            defaultValue={formData?.get("assistant")?.toString() ??
+            name="assistant_id"
+            id="assistant_id-input"
+            defaultValue={formData?.get("assistant_id")?.toString() ??
               assistants.data.at(0)?.id}
           >
             {assistants.data.map((a) => (

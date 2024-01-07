@@ -29,6 +29,8 @@ export function listen(handler: (payload: WAMessage) => void) {
       const parseResult = WAMessageSchema.safeParse(data);
       if (parseResult.success) {
         handler(parseResult.data);
+      } else {
+        console.error(parseResult.error);
       }
     })
     .on("error", console.error)
@@ -37,5 +39,8 @@ export function listen(handler: (payload: WAMessage) => void) {
 
 export function send(remoteJid: string, text: string) {
   if (!client.connected) client.reconnect();
-  client.publish("wa/messages/out/" + remoteJid, JSON.stringify({ text }));
+  client.publish(
+    "wa/messages/out/" + remoteJid,
+    JSON.stringify([remoteJid, { text }, {}]),
+  );
 }
