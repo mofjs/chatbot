@@ -1,35 +1,46 @@
-import { Handlers } from "$fresh/server.ts";
+import { Handlers, PageProps } from "$fresh/server.ts";
 import { z } from "zod";
-import { openai } from "~/utils/openai.ts";
+import { Model, openai } from "~/utils/openai.ts";
 
 const DEFAULT_MODEL = "gpt-3.5-turbo";
 
-const assistantCreateSchema = z.object({
+const createAssistantSchema = z.object({
   name: z.string().max(256).optional(),
   description: z.string().max(512).optional(),
   instructions: z.string().max(32768).optional(),
   model: z.string(),
 });
 
-export const handler: Handlers = {
-  GET(_req, ctx) {
-    return ctx.render();
+type PagePropsData = {
+  models: Model[];
+  formData?: FormData;
+  errors?: z.ZodFormattedError<z.infer<typeof createAssistantSchema>>;
+};
+
+export const handler: Handlers<PagePropsData> = {
+  async GET(_req, ctx) {
+    const models = (await openai.models.list()).data;
+    return ctx.render({ models });
   },
   async POST(req, ctx) {
     const formData = await req.formData();
-    const parseResult = await assistantCreateSchema.safeParseAsync(
+    const parseResult = await createAssistantSchema.safeParseAsync(
       Object.fromEntries(formData),
     );
-    if (!parseResult.success) {
-      return ctx.render({}, { status: 400 });
+    if (parseResult.success) {
+      await openai.beta.assistants.create(parseResult.data);
+      return Response.redirect(new URL("/assistants", req.url), 302);
+    } else {
+      const errors = parseResult.error.format();
+      const models = (await openai.models.list()).data;
+      return ctx.render({ models, formData, errors }, { status: 400 });
     }
-    await openai.beta.assistants.create(parseResult.data);
-    return Response.redirect(new URL("/assistants", req.url), 302);
   },
 };
 
-export default async function CreateAssistantPage() {
-  const models = await openai.models.list();
+export default function CreateAssistantPage(
+  { data: { models, formData, errors } }: PageProps<PagePropsData>,
+) {
   return (
     <>
       <h2>Create a new Assistant</h2>
@@ -42,7 +53,15 @@ export default async function CreateAssistantPage() {
             id="name-input"
             placeholder="The name of the assistant."
             max={256}
+            defaultValue={formData?.get("name")?.toString()}
+            aria-invalid={errors?.name?._errors.length ? true : undefined}
+            aria-describedby={errors?.name?._errors.length
+              ? "name-error"
+              : undefined}
           />
+          {!!errors?.name?._errors.length && (
+            <small id="name-error">{errors.name._errors.join(" | ")}</small>
+          )}
         </label>
         <label htmlFor="description-input">
           Description
@@ -53,7 +72,19 @@ export default async function CreateAssistantPage() {
             cols={80}
             rows={2}
             max={512}
+            defaultValue={formData?.get("description")?.toString()}
+            aria-invalid={errors?.description?._errors.length
+              ? true
+              : undefined}
+            aria-describedby={errors?.description?._errors.length
+              ? "description-error"
+              : undefined}
           />
+          {!!errors?.description?._errors.length && (
+            <small id="description-error">
+              {errors.description._errors.join(" | ")}
+            </small>
+          )}
         </label>
         <label htmlFor="instructions-input">
           Instruction
@@ -64,20 +95,44 @@ export default async function CreateAssistantPage() {
             cols={80}
             rows={5}
             max={32768}
+            defaultValue={formData?.get("instructions")?.toString()}
+            aria-invalid={errors?.instructions?._errors.length
+              ? true
+              : undefined}
+            aria-describedby={errors?.instructions?._errors.length
+              ? "instructions-error"
+              : undefined}
           />
+          {!!errors?.instructions?._errors.length && (
+            <small id="instructions-error">
+              {errors.instructions._errors.join(" | ")}
+            </small>
+          )}
         </label>
         <label htmlFor="model-input">
           Model
-          <select name="model" id="model-input" defaultValue={DEFAULT_MODEL}>
-            {models.data.map((v) => (
+          <select
+            name="model"
+            id="model-input"
+            defaultValue={formData?.get("model")?.toString() ?? DEFAULT_MODEL}
+            aria-invalid={errors?.model?._errors.length ? true : undefined}
+            aria-describedby={errors?.model?._errors.length
+              ? "model-error"
+              : undefined}
+          >
+            {models.map((v) => (
               <option value={v.id}>
                 {v.id} ({v.owned_by})
               </option>
             ))}
           </select>
+          {!!errors?.model?._errors.length && (
+            <small id="model-error">
+              {errors.model._errors.join(" | ")}
+            </small>
+          )}
         </label>
         <button type="submit">Create!</button>
-        <button type="reset" className="contrast">Cancel</button>
       </form>
     </>
   );

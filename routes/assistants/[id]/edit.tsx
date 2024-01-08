@@ -1,6 +1,6 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { z } from "zod";
-import { openai } from "~/utils/openai.ts";
+import { Assistant, Model, openai } from "~/utils/openai.ts";
 
 const assistantEditSchema = z.object({
   name: z.string().max(256).optional(),
@@ -10,8 +10,9 @@ const assistantEditSchema = z.object({
 });
 
 type PagePropsData = {
-  assistant: Awaited<ReturnType<typeof openai.beta.assistants.retrieve>>;
-  models: Awaited<ReturnType<typeof openai.models.list>>;
+  assistant: Assistant;
+  models: Model[];
+  formData?: FormData;
   errors?: z.ZodFormattedError<z.infer<typeof assistantEditSchema>>;
 };
 
@@ -19,7 +20,7 @@ export const handler: Handlers<PagePropsData> = {
   GET: async (_req, ctx) => {
     const assistant_id = ctx.params.id;
     const assistant = await openai.beta.assistants.retrieve(assistant_id);
-    const models = await openai.models.list();
+    const models = (await openai.models.list()).data;
     return ctx.render({ assistant, models });
   },
   POST: async (req, ctx) => {
@@ -32,19 +33,21 @@ export const handler: Handlers<PagePropsData> = {
       await openai.beta.assistants.update(assistant_id, parseResult.data);
       return Response.redirect(new URL("/assistants", req.url), 302);
     } else {
+      const errors = parseResult.error.format();
       const assistant = await openai.beta.assistants.retrieve(assistant_id);
-      const models = await openai.models.list();
+      const models = (await openai.models.list()).data;
       return ctx.render({
         assistant,
         models,
-        errors: parseResult.error.format(),
+        formData,
+        errors,
       }, { status: 400 });
     }
   },
 };
 
 export default function EditAssistantPage(
-  { data: { assistant, models, errors } }: PageProps<PagePropsData>,
+  { data: { assistant, models, formData, errors } }: PageProps<PagePropsData>,
 ) {
   return (
     <form action="" method="post">
@@ -56,7 +59,8 @@ export default function EditAssistantPage(
           id="name-input"
           placeholder="The name of the assistant."
           max={256}
-          defaultValue={assistant.name ?? undefined}
+          defaultValue={formData?.get("name")?.toString() ?? assistant.name ??
+            undefined}
           aria-invalid={errors?.name?._errors.length ? true : undefined}
           aria-describedby={errors?.name?._errors.length
             ? "name-error"
@@ -75,7 +79,8 @@ export default function EditAssistantPage(
           cols={80}
           rows={2}
           max={512}
-          defaultValue={assistant.description ?? undefined}
+          defaultValue={formData?.get("description")?.toString() ??
+            assistant.description ?? undefined}
           aria-invalid={errors?.description?._errors.length ? true : undefined}
           aria-describedby={errors?.description?._errors.length
             ? "description-error"
@@ -96,7 +101,8 @@ export default function EditAssistantPage(
           cols={80}
           rows={5}
           max={32768}
-          defaultValue={assistant.instructions ?? undefined}
+          defaultValue={formData?.get("instructions")?.toString() ??
+            assistant.instructions ?? undefined}
           aria-invalid={errors?.instructions?._errors.length ? true : undefined}
           aria-describedby={errors?.instructions?._errors.length
             ? "instructions-error"
@@ -113,13 +119,13 @@ export default function EditAssistantPage(
         <select
           name="model"
           id="model-input"
-          defaultValue={assistant.model}
+          defaultValue={formData?.get("model")?.toString() ?? assistant.model}
           aria-invalid={errors?.model?._errors.length ? true : undefined}
           aria-describedby={errors?.model?._errors.length
             ? "model-error"
             : undefined}
         >
-          {models.data.map((v) => (
+          {models.map((v) => (
             <option value={v.id}>
               {v.id} ({v.owned_by})
             </option>
