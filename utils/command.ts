@@ -26,6 +26,7 @@ export async function handleCommand(
           sections: [{
             title: "All",
             rows: assistants.data.map((assistant) => ({
+              rowId: assistant.id,
               title: assistant.name ?? "No Name",
               description: assistant.description ?? "No Description",
             })),
