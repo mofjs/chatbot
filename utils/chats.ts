@@ -3,8 +3,8 @@ import { z } from "zod";
 
 export const chatSchema = z.object({
   jid: z.union([
-    z.string().regex(/\d+@s\.whatsapp\.net/),
-    z.string().regex(/\d+-\d+@g\.us/),
+    z.string().regex(/^\d+@s\.whatsapp\.net$/),
+    z.string().regex(/^[\d-]+@g\.us$/),
   ]),
   name: z.string().min(5).max(255),
   assistant_id: z.string(),
