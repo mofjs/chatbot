@@ -2,11 +2,22 @@ import { env } from "~/utils/env.ts";
 import { getChat } from "~/utils/chats.ts";
 import { openai } from "~/utils/openai.ts";
 import { send, WAMessage } from "~/utils/wa.ts";
+import { handleCommand } from "~/utils/command.ts";
 
 export async function handle_message(waMessage: WAMessage) {
   const jid = waMessage.key.remoteJid;
   if (!jid) return;
   const chat = await getChat(jid);
+  const content = (waMessage.message?.conversation ??
+    waMessage.message?.extendedTextMessage?.text)?.trim();
+  if (!content) return;
+  if (content.startsWith("/")) {
+    const reply = await handleCommand(waMessage);
+    if (reply) {
+      await send(reply);
+      return;
+    }
+  }
   if (!chat || !chat.assistant_id || chat.reply_to === "none") return;
   const contextInfo = waMessage.message?.extendedTextMessage?.contextInfo;
   const isMentioned = contextInfo?.mentionedJid?.includes(env.SELF_JID);
@@ -16,9 +27,6 @@ export async function handle_message(waMessage: WAMessage) {
   if (chat.reply_to === "mentions_or_quotes" && !isMentioned && !isQuoted) {
     return;
   }
-  const content = waMessage.message?.conversation ??
-    waMessage.message?.extendedTextMessage?.text;
-  if (!content) return;
   const message = {
     role: "user" as const,
     content,
@@ -39,7 +47,7 @@ export async function handle_message(waMessage: WAMessage) {
   reply?.content?.forEach(async (content) => {
     switch (content.type) {
       case "text":
-        send(chat.jid, content.text.value);
+        send({ jid: chat.jid, content: { text: content.text.value } });
         break;
       case "image_file": {
         const response = await openai.files.content(content.image_file.file_id);

@@ -17,7 +17,77 @@ export const WAMessageSchema = z.object({
   }),
 });
 
+const WAListableSchema = z.object({
+  sections: z.array(
+    z.object({
+      rows: z.array(
+        z.object({
+          rowId: z.string(),
+          title: z.string(),
+          description: z.string(),
+        }).partial(),
+      ),
+      title: z.string(),
+    }).partial(),
+  ),
+  title: z.string(),
+  buttonText: z.string(),
+}).partial();
+
+const WAButtonableSchema = z.object({
+  buttons: z.array(
+    z.object({
+      buttonId: z.string(),
+      buttonText: z.object({ displayText: z.string() }).partial(),
+      nativeFlowInfo: z.object({ name: z.string(), paramsJson: z.string() })
+        .partial(),
+    }).partial(),
+  ),
+}).partial();
+
+const WARegularMessageContentSchema = z.union([
+  z.object({ text: z.string() }).extend(WAListableSchema.shape).extend(
+    WAButtonableSchema.shape,
+  ),
+  z.object({
+    location: z.object({
+      name: z.string(),
+      degreesLatitude: z.number(),
+      degreesLongitude: z.number(),
+      address: z.string(),
+      url: z.string(),
+    }).partial(),
+  }),
+  z.object({
+    buttonReply: z.object({
+      displayText: z.string(),
+      id: z.string(),
+      index: z.number(),
+    }),
+    type: z.enum(["template", "plain"]),
+  }),
+  z.object({
+    listReply: z.object({
+      title: z.string(),
+      description: z.string(),
+      listType: z.union([z.literal(0), z.literal(1)]),
+      singleSelectReply: z.object({
+        selectedRowId: z.string().optional(),
+      }),
+    }).partial(),
+  }),
+]);
+
+export const WASendMessageSchema = z.object({
+  jid: z.string(),
+  content: WARegularMessageContentSchema,
+  options: z.object({ quoted: WAMessageSchema, timestamp: z.date() }).partial()
+    .optional(),
+});
+
 export type WAMessage = z.infer<typeof WAMessageSchema>;
+
+export type WASendMessage = z.infer<typeof WASendMessageSchema>;
 
 let client: mqtt.MqttClient;
 
@@ -37,10 +107,10 @@ export function listen(handler: (payload: WAMessage) => void) {
     .connect();
 }
 
-export function send(remoteJid: string, text: string) {
+export function send({ jid, content, options }: WASendMessage) {
   if (!client.connected) client.reconnect();
   client.publish(
-    "wa/messages/out/" + remoteJid,
-    JSON.stringify([remoteJid, { text }, {}]),
+    "wa/messages/out/" + jid,
+    JSON.stringify([jid, content, options]),
   );
 }
