@@ -29,7 +29,7 @@ export default defineRoute(async (req, ctx) => {
   );
   return (
     <>
-      <a role="button" href="/chats/create" className="m-1">Create</a>
+      <a role="button" href="/chats/create" className="m-1">Create new chat!</a>
       <figure>
         <table className="striped">
           <thead>

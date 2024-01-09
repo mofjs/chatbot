@@ -43,6 +43,7 @@ export default function ChatEditPage(
 ) {
   return (
     <form action="" method="post">
+      <h2 className="text-center">Edit Chat</h2>
       <label htmlFor="name-input">
         Name
         <input
