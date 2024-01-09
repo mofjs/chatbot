@@ -1,6 +1,6 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { z } from "zod";
-import { Assistant, Model, openai } from "~/utils/openai.ts";
+import { Assistant, Model, NotFoundError, openai } from "~/utils/openai.ts";
 
 const assistantEditSchema = z.object({
   name: z.string().max(256).optional(),
@@ -18,23 +18,46 @@ type PagePropsData = {
 
 export const handler: Handlers<PagePropsData> = {
   GET: async (_req, ctx) => {
-    const assistant_id = ctx.params.id;
-    const assistant = await openai.beta.assistants.retrieve(assistant_id);
+    const assistantId = ctx.params.id;
+    const assistant = await openai.beta.assistants.retrieve(assistantId).catch(
+      (error) => {
+        if (error instanceof NotFoundError) {
+          return null;
+        } else {
+          throw error;
+        }
+      },
+    );
+    if (!assistant) {
+      return ctx.renderNotFound();
+    }
     const models = (await openai.models.list()).data;
     return ctx.render({ assistant, models });
   },
   POST: async (req, ctx) => {
-    const assistant_id = ctx.params.id;
+    const assistantId = ctx.params.id;
     const formData = await req.formData();
     const parseResult = await assistantEditSchema.spa(
       Object.fromEntries(formData),
     );
     if (parseResult.success) {
-      await openai.beta.assistants.update(assistant_id, parseResult.data);
+      await openai.beta.assistants.update(assistantId, parseResult.data);
       return Response.redirect(new URL("/assistants", req.url), 302);
     } else {
       const errors = parseResult.error.format();
-      const assistant = await openai.beta.assistants.retrieve(assistant_id);
+      const assistant = await openai.beta.assistants.retrieve(assistantId)
+        .catch(
+          (error) => {
+            if (error instanceof NotFoundError) {
+              return null;
+            } else {
+              throw error;
+            }
+          },
+        );
+      if (!assistant) {
+        return ctx.renderNotFound();
+      }
       const models = (await openai.models.list()).data;
       return ctx.render({
         assistant,
@@ -51,6 +74,7 @@ export default function EditAssistantPage(
 ) {
   return (
     <form action="" method="post">
+      <h2 className="text-center">Edit Assistant</h2>
       <label htmlFor="name-input">
         Name
         <input

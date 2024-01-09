@@ -29,7 +29,7 @@ export const handler: Handlers<PagePropsData> = {
     );
     if (parseResult.success) {
       await openai.beta.assistants.create(parseResult.data);
-      return Response.redirect(new URL("/assistants", req.url), 302);
+      return Response.redirect(new URL("/assistants", req.url), 303);
     } else {
       const errors = parseResult.error.format();
       const models = (await openai.models.list()).data;
@@ -42,98 +42,92 @@ export default function CreateAssistantPage(
   { data: { models, formData, errors } }: PageProps<PagePropsData>,
 ) {
   return (
-    <>
-      <h2>Create a new Assistant</h2>
-      <form action="" method="post">
-        <label htmlFor="name-input">
-          Name
-          <input
-            type="text"
-            name="name"
-            id="name-input"
-            placeholder="The name of the assistant."
-            max={256}
-            defaultValue={formData?.get("name")?.toString()}
-            aria-invalid={errors?.name?._errors.length ? true : undefined}
-            aria-describedby={errors?.name?._errors.length
-              ? "name-error"
-              : undefined}
-          />
-          {!!errors?.name?._errors.length && (
-            <small id="name-error">{errors.name._errors.join(" | ")}</small>
-          )}
-        </label>
-        <label htmlFor="description-input">
-          Description
-          <textarea
-            name="description"
-            id="description-input"
-            placeholder="The description of the assistant."
-            cols={80}
-            rows={2}
-            max={512}
-            defaultValue={formData?.get("description")?.toString()}
-            aria-invalid={errors?.description?._errors.length
-              ? true
-              : undefined}
-            aria-describedby={errors?.description?._errors.length
-              ? "description-error"
-              : undefined}
-          />
-          {!!errors?.description?._errors.length && (
-            <small id="description-error">
-              {errors.description._errors.join(" | ")}
-            </small>
-          )}
-        </label>
-        <label htmlFor="instructions-input">
-          Instruction
-          <textarea
-            name="instructions"
-            id="instructions-input"
-            placeholder="The system instructions that the assistant uses."
-            cols={80}
-            rows={5}
-            max={32768}
-            defaultValue={formData?.get("instructions")?.toString()}
-            aria-invalid={errors?.instructions?._errors.length
-              ? true
-              : undefined}
-            aria-describedby={errors?.instructions?._errors.length
-              ? "instructions-error"
-              : undefined}
-          />
-          {!!errors?.instructions?._errors.length && (
-            <small id="instructions-error">
-              {errors.instructions._errors.join(" | ")}
-            </small>
-          )}
-        </label>
-        <label htmlFor="model-input">
-          Model
-          <select
-            name="model"
-            id="model-input"
-            defaultValue={formData?.get("model")?.toString() ?? DEFAULT_MODEL}
-            aria-invalid={errors?.model?._errors.length ? true : undefined}
-            aria-describedby={errors?.model?._errors.length
-              ? "model-error"
-              : undefined}
-          >
-            {models.map((v) => (
-              <option value={v.id}>
-                {v.id} ({v.owned_by})
-              </option>
-            ))}
-          </select>
-          {!!errors?.model?._errors.length && (
-            <small id="model-error">
-              {errors.model._errors.join(" | ")}
-            </small>
-          )}
-        </label>
-        <button type="submit">Create!</button>
-      </form>
-    </>
+    <form action="" method="post">
+      <h2 className="text-center">Create a new Assistant</h2>
+      <label htmlFor="name-input">
+        Name
+        <input
+          type="text"
+          name="name"
+          id="name-input"
+          placeholder="The name of the assistant."
+          max={256}
+          defaultValue={formData?.get("name")?.toString()}
+          aria-invalid={errors?.name?._errors.length ? true : undefined}
+          aria-describedby={errors?.name?._errors.length
+            ? "name-error"
+            : undefined}
+        />
+        {!!errors?.name?._errors.length && (
+          <small id="name-error">{errors.name._errors.join(" | ")}</small>
+        )}
+      </label>
+      <label htmlFor="description-input">
+        Description
+        <textarea
+          name="description"
+          id="description-input"
+          placeholder="The description of the assistant."
+          cols={80}
+          rows={2}
+          max={512}
+          defaultValue={formData?.get("description")?.toString()}
+          aria-invalid={errors?.description?._errors.length ? true : undefined}
+          aria-describedby={errors?.description?._errors.length
+            ? "description-error"
+            : undefined}
+        />
+        {!!errors?.description?._errors.length && (
+          <small id="description-error">
+            {errors.description._errors.join(" | ")}
+          </small>
+        )}
+      </label>
+      <label htmlFor="instructions-input">
+        Instruction
+        <textarea
+          name="instructions"
+          id="instructions-input"
+          placeholder="The system instructions that the assistant uses."
+          cols={80}
+          rows={5}
+          max={32768}
+          defaultValue={formData?.get("instructions")?.toString()}
+          aria-invalid={errors?.instructions?._errors.length ? true : undefined}
+          aria-describedby={errors?.instructions?._errors.length
+            ? "instructions-error"
+            : undefined}
+        />
+        {!!errors?.instructions?._errors.length && (
+          <small id="instructions-error">
+            {errors.instructions._errors.join(" | ")}
+          </small>
+        )}
+      </label>
+      <label htmlFor="model-input">
+        Model
+        <select
+          name="model"
+          id="model-input"
+          defaultValue={formData?.get("model")?.toString() ?? DEFAULT_MODEL}
+          aria-invalid={errors?.model?._errors.length ? true : undefined}
+          aria-describedby={errors?.model?._errors.length
+            ? "model-error"
+            : undefined}
+        >
+          {models.map((v) => (
+            <option value={v.id}>
+              {v.id} ({v.owned_by})
+            </option>
+          ))}
+        </select>
+        {!!errors?.model?._errors.length && (
+          <small id="model-error">
+            {errors.model._errors.join(" | ")}
+          </small>
+        )}
+      </label>
+      <button type="submit">Create!</button>
+    </form>
   );
 }

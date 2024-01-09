@@ -1,7 +1,7 @@
 import { defineRoute } from "$fresh/server.ts";
 import { openai } from "~/utils/openai.ts";
 
-export default defineRoute(async (req, ctx) => {
+export default defineRoute(async (_req, ctx) => {
   const id = ctx.params.id;
   const assistant = await openai.beta.assistants.retrieve(id);
   const files = await Promise.all(
