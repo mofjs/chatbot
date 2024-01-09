@@ -104,7 +104,6 @@ export default function CreateChatPage(
           ))}
         </fieldset>
         <button type="submit">Create!</button>
-        <button type="reset" className="contrast">Cancel</button>
       </form>
     </>
   );
