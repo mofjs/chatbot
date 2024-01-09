@@ -7,23 +7,18 @@ import DeleteButton from "~/islands/DeleteButton.tsx";
 export const handler: Handlers = {
   async POST(req, _ctx) {
     const formData = await req.formData();
-    const deleteId = formData.get("delete_id")?.toString();
-    if (deleteId) {
-      await deleteChat(deleteId);
+    const action = formData.get("action")?.toString();
+    if (action === "delete") {
+      const jid = formData.get("jid")?.toString();
+      if (jid) {
+        await deleteChat(jid);
+      }
     }
     return Response.redirect(req.url, 303);
   },
 };
 
-export default defineRoute(async (req, ctx) => {
-  if (req.method === "POST") {
-    const formData = await req.formData();
-    const deleteId = formData.get("delete_id")?.toString();
-    if (deleteId) {
-      await deleteChat(deleteId);
-      return Response.redirect(req.url, 303);
-    }
-  }
+export default defineRoute(async (_req, _ctx) => {
   const chats = await getChats();
   const assistantsMap = await openai.beta.assistants.list().then(({ data }) =>
     new Map(data.map((assistant) => [assistant.id, assistant]))
