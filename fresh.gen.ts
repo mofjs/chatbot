@@ -18,7 +18,7 @@ import * as $chats_layout from "./routes/chats/_layout.tsx";
 import * as $chats_create from "./routes/chats/create.tsx";
 import * as $chats_index from "./routes/chats/index.tsx";
 import * as $index from "./routes/index.tsx";
-
+import * as $DeleteButton from "./islands/DeleteButton.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -40,7 +40,9 @@ const manifest = {
     "./routes/chats/index.tsx": $chats_index,
     "./routes/index.tsx": $index,
   },
-  islands: {},
+  islands: {
+    "./islands/DeleteButton.tsx": $DeleteButton,
+  },
   baseUrl: import.meta.url,
 } satisfies Manifest;
 

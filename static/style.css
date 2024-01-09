@@ -9,6 +9,15 @@ body>footer {
   text-align: center;
 }
 
+.d-inline-block {
+  display: inline-block;
+}
+
 .m-1 {
   margin: 0.25rem;
+}
+
+.bg-delete {
+  background-color: var(--pico-del-color);
+  border-color: var(--pico-del-color);
 }
