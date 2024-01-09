@@ -77,13 +77,12 @@ export default function DeleteButton(
         ref={formRef}
         className={className}
       >
+        <input type="hidden" name="action" value="delete" />
         {Object.entries(inputs).map(([name, value]) => (
           <input type="hidden" {...{ name, value }} />
         ))}
         <button
           type="submit"
-          name="action"
-          value="delete"
           className="bg-delete"
           data-tooltip="Delete"
           onClick={openModal}
