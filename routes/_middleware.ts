@@ -1,9 +1,9 @@
-import { MiddlewareHandlerContext } from "$fresh/server.ts";
+import { FreshContext } from "$fresh/server.ts";
 import { env } from "~/utils/env.ts";
 
-function basicAuthMiddleware(
+export function handler(
   req: Request,
-  ctx: MiddlewareHandlerContext,
+  ctx: FreshContext,
 ) {
   const authorization = req.headers.get("authorization");
   if (authorization) {
@@ -25,5 +25,3 @@ function basicAuthMiddleware(
     },
   });
 }
-
-export const handler = [basicAuthMiddleware];

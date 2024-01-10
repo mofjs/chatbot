@@ -10,29 +10,19 @@ const assistantEditSchema = z.object({
 });
 
 type PagePropsData = {
-  assistant: Assistant;
   models: Model[];
   formData?: FormData;
   errors?: z.ZodFormattedError<z.infer<typeof assistantEditSchema>>;
 };
 
-export const handler: Handlers<PagePropsData> = {
+type ContextState = {
+  assistant: Assistant;
+};
+
+export const handler: Handlers<PagePropsData, ContextState> = {
   GET: async (_req, ctx) => {
-    const assistantId = ctx.params.id;
-    const assistant = await openai.beta.assistants.retrieve(assistantId).catch(
-      (error) => {
-        if (error instanceof NotFoundError) {
-          return null;
-        } else {
-          throw error;
-        }
-      },
-    );
-    if (!assistant) {
-      return ctx.renderNotFound();
-    }
     const models = (await openai.models.list()).data;
-    return ctx.render({ assistant, models });
+    return ctx.render({ models });
   },
   POST: async (req, ctx) => {
     const assistantId = ctx.params.id;
@@ -45,22 +35,8 @@ export const handler: Handlers<PagePropsData> = {
       return Response.redirect(new URL("/assistants", req.url), 302);
     } else {
       const errors = parseResult.error.format();
-      const assistant = await openai.beta.assistants.retrieve(assistantId)
-        .catch(
-          (error) => {
-            if (error instanceof NotFoundError) {
-              return null;
-            } else {
-              throw error;
-            }
-          },
-        );
-      if (!assistant) {
-        return ctx.renderNotFound();
-      }
       const models = (await openai.models.list()).data;
       return ctx.render({
-        assistant,
         models,
         formData,
         errors,
@@ -70,7 +46,10 @@ export const handler: Handlers<PagePropsData> = {
 };
 
 export default function EditAssistantPage(
-  { data: { assistant, models, formData, errors } }: PageProps<PagePropsData>,
+  { data: { models, formData, errors }, state: { assistant } }: PageProps<
+    PagePropsData,
+    ContextState
+  >,
 ) {
   return (
     <form action="" method="post">
