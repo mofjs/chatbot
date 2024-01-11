@@ -3,6 +3,7 @@ import { getChat } from "~/utils/chats.ts";
 import { openai } from "~/utils/openai.ts";
 import { send, WAMessage } from "~/utils/wa.ts";
 import { handleCommand } from "~/utils/command.ts";
+import { execFunctionTool } from "~/utils/function-tool.ts";
 
 export async function handle_message(waMessage: WAMessage) {
   const jid = waMessage.key.remoteJid;
@@ -75,6 +76,22 @@ export async function pollsRun(thread_id: string, run_id: string) {
           return message;
         }
         return null;
+      }
+      case "requires_action": {
+        const tool_calls = run.required_action?.submit_tool_outputs.tool_calls;
+        if (!tool_calls) break;
+        const tool_outputs = await Promise.all(
+          tool_calls.map(async (
+            { id, function: { name, arguments: args } },
+          ) => ({
+            tool_call_id: id,
+            output: await execFunctionTool(name, args),
+          })),
+        );
+        await openai.beta.threads.runs.submitToolOutputs(thread_id, run_id, {
+          tool_outputs,
+        });
+        break;
       }
       case "cancelled":
       case "cancelling":
