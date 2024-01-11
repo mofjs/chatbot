@@ -183,7 +183,7 @@ export default function CreateAssistantPage(
                   v.toString() === value
                 )}
               />
-              Code Interpreter
+              {t}
             </label>
           );
         })}
