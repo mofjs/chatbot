@@ -1,18 +1,51 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { z } from "zod";
 import { Model, openai } from "~/utils/openai.ts";
+import {
+  FunctionTool,
+  functionToolSchema,
+  listFunctionTools,
+} from "~/utils/function-tool.ts";
 
 const DEFAULT_MODEL = "gpt-3.5-turbo";
+
+const assistantToolSchema = z.union([
+  z.object({ type: z.enum(["code_interpreter", "retrieval"]) }),
+  z.object({
+    type: z.literal("function"),
+    function: functionToolSchema.omit({ "script": true }),
+  }),
+]);
 
 const createAssistantSchema = z.object({
   name: z.string().max(256).optional(),
   description: z.string().max(512).optional(),
   instructions: z.string().max(32768).optional(),
   model: z.string(),
+  tools: z.array(
+    z.string().transform((arg, ctx) => {
+      try {
+        return assistantToolSchema.parse(JSON.parse(arg));
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: error.message,
+            fatal: true,
+          });
+        }
+        if (error instanceof z.ZodError) {
+          error.issues.forEach((issue) => ctx.addIssue(issue));
+        }
+        return z.NEVER;
+      }
+    }),
+  ),
 });
 
 type PagePropsData = {
   models: Model[];
+  functionTools: FunctionTool[];
   formData?: FormData;
   errors?: z.ZodFormattedError<z.infer<typeof createAssistantSchema>>;
 };
@@ -20,12 +53,13 @@ type PagePropsData = {
 export const handler: Handlers<PagePropsData> = {
   async GET(_req, ctx) {
     const models = (await openai.models.list()).data;
-    return ctx.render({ models });
+    const functionTools = await listFunctionTools();
+    return ctx.render({ models, functionTools });
   },
   async POST(req, ctx) {
     const formData = await req.formData();
     const parseResult = await createAssistantSchema.safeParseAsync(
-      Object.fromEntries(formData),
+      { ...Object.fromEntries(formData), tools: formData.getAll("tools") },
     );
     if (parseResult.success) {
       await openai.beta.assistants.create(parseResult.data);
@@ -33,13 +67,18 @@ export const handler: Handlers<PagePropsData> = {
     } else {
       const errors = parseResult.error.format();
       const models = (await openai.models.list()).data;
-      return ctx.render({ models, formData, errors }, { status: 400 });
+      const functionTools = await listFunctionTools();
+      return ctx.render({ models, functionTools, formData, errors }, {
+        status: 400,
+      });
     }
   },
 };
 
 export default function CreateAssistantPage(
-  { data: { models, formData, errors } }: PageProps<PagePropsData>,
+  { data: { models, functionTools, formData, errors } }: PageProps<
+    PagePropsData
+  >,
 ) {
   return (
     <form action="" method="post">
@@ -127,6 +166,53 @@ export default function CreateAssistantPage(
           </small>
         )}
       </label>
+      <fieldset>
+        <legend>Tools</legend>
+        {["code_interpreter", "retrieval"].map((t) => {
+          const id = t + "-input";
+          const value = JSON.stringify({ type: t });
+          return (
+            <label htmlFor={id}>
+              <input
+                type="checkbox"
+                name="tools"
+                id={id}
+                role="switch"
+                value={value}
+                defaultChecked={formData?.getAll("tools").some((v) =>
+                  v.toString() === value
+                )}
+              />
+              Code Interpreter
+            </label>
+          );
+        })}
+        <hr />
+        <legend>Functions</legend>
+        {functionTools.map((f) => {
+          const id = f.name + "-input";
+          const value = JSON.stringify(f, [
+            "name",
+            "description",
+            "parameters",
+          ]);
+          return (
+            <label htmlFor={id}>
+              <input
+                type="checkbox"
+                name="tools"
+                id={id}
+                role="switch"
+                value={value}
+                defaultChecked={formData?.getAll("tools").some((v) =>
+                  v.toString() === value
+                )}
+              />
+              {f.name}
+            </label>
+          );
+        })}
+      </fieldset>
       <button type="submit">Create!</button>
     </form>
   );

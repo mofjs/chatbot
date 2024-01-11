@@ -1,16 +1,49 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { z } from "zod";
 import { Assistant, Model, NotFoundError, openai } from "~/utils/openai.ts";
+import {
+  FunctionTool,
+  functionToolSchema,
+  listFunctionTools,
+} from "~/utils/function-tool.ts";
+
+const assistantToolSchema = z.union([
+  z.object({ type: z.enum(["code_interpreter", "retrieval"]) }),
+  z.object({
+    type: z.literal("function"),
+    function: functionToolSchema.omit({ "script": true }),
+  }),
+]);
 
 const assistantEditSchema = z.object({
   name: z.string().max(256).optional(),
   description: z.string().max(512).optional(),
   instructions: z.string().max(32768).optional(),
   model: z.string(),
+  tools: z.array(
+    z.string().transform((arg, ctx) => {
+      try {
+        return assistantToolSchema.parse(JSON.parse(arg));
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: error.message,
+            fatal: true,
+          });
+        }
+        if (error instanceof z.ZodError) {
+          error.issues.forEach((issue) => ctx.addIssue(issue));
+        }
+        return z.NEVER;
+      }
+    }),
+  ),
 });
 
 type PagePropsData = {
   models: Model[];
+  functionTools: FunctionTool[];
   formData?: FormData;
   errors?: z.ZodFormattedError<z.infer<typeof assistantEditSchema>>;
 };
@@ -22,13 +55,14 @@ type ContextState = {
 export const handler: Handlers<PagePropsData, ContextState> = {
   GET: async (_req, ctx) => {
     const models = (await openai.models.list()).data;
-    return ctx.render({ models });
+    const functionTools = await listFunctionTools();
+    return ctx.render({ models, functionTools });
   },
   POST: async (req, ctx) => {
     const assistantId = ctx.params.id;
     const formData = await req.formData();
     const parseResult = await assistantEditSchema.spa(
-      Object.fromEntries(formData),
+      { ...Object.fromEntries(formData), tools: formData.getAll("tools") },
     );
     if (parseResult.success) {
       await openai.beta.assistants.update(assistantId, parseResult.data);
@@ -36,8 +70,10 @@ export const handler: Handlers<PagePropsData, ContextState> = {
     } else {
       const errors = parseResult.error.format();
       const models = (await openai.models.list()).data;
+      const functionTools = await listFunctionTools();
       return ctx.render({
         models,
+        functionTools,
         formData,
         errors,
       }, { status: 400 });
@@ -46,10 +82,11 @@ export const handler: Handlers<PagePropsData, ContextState> = {
 };
 
 export default function EditAssistantPage(
-  { data: { models, formData, errors }, state: { assistant } }: PageProps<
-    PagePropsData,
-    ContextState
-  >,
+  { data: { models, functionTools, formData, errors }, state: { assistant } }:
+    PageProps<
+      PagePropsData,
+      ContextState
+    >,
 ) {
   return (
     <form action="" method="post">
@@ -140,6 +177,55 @@ export default function EditAssistantPage(
           </small>
         )}
       </label>
+      <fieldset>
+        <legend>Tools</legend>
+        {["code_interpreter", "retrieval"].map((t) => {
+          const id = t + "-input";
+          const value = JSON.stringify({ type: t });
+          return (
+            <label htmlFor={id}>
+              <input
+                type="checkbox"
+                name="tools"
+                id={id}
+                role="switch"
+                value={value}
+                defaultChecked={formData?.getAll("tools").some((v) =>
+                  v.toString() === value
+                ) ?? assistant.tools.some(({ type }) => type === t)}
+              />
+              {t}
+            </label>
+          );
+        })}
+        <hr />
+        <legend>Functions</legend>
+        {functionTools.map((f) => {
+          const id = f.name + "-input";
+          const value = JSON.stringify(f, [
+            "name",
+            "description",
+            "parameters",
+          ]);
+          return (
+            <label htmlFor={id}>
+              <input
+                type="checkbox"
+                name="tools"
+                id={id}
+                role="switch"
+                value={value}
+                defaultChecked={formData?.getAll("tools").some((v) =>
+                  v.toString() === value
+                ) ?? assistant.tools.some((tool) =>
+                  tool.type === "function" && tool.function.name === f.name
+                )}
+              />
+              {f.name}
+            </label>
+          );
+        })}
+      </fieldset>
       <button type="submit">Edit!</button>
     </form>
   );
