@@ -1,8 +1,23 @@
-import { defineRoute } from "$fresh/server.ts";
+import { defineRoute, Handlers } from "$fresh/server.ts";
 import { Assistant, openai } from "~/utils/openai.ts";
+import DeleteButton from "~/islands/DeleteButton.tsx";
 
 type ContextState = {
   assistant: Assistant;
+};
+
+export const handler: Handlers<void, ContextState> = {
+  async POST(req, { state: { assistant } }) {
+    const formData = await req.formData();
+    const action = formData.get("action")?.toString();
+    if (action === "delete") {
+      const fileId = formData.get("file_id")?.toString();
+      if (fileId) {
+        await openai.beta.assistants.files.del(assistant.id, fileId);
+      }
+    }
+    return Response.redirect(req.url, 303);
+  },
 };
 
 export default defineRoute<ContextState>(
@@ -97,7 +112,14 @@ export default defineRoute<ContextState>(
                   <td>{file.filename}</td>
                   <td>{file.purpose}</td>
                   <td>{file.bytes}</td>
-                  <td>{new Date(file.created_at)}</td>
+                  <td>{new Date(file.created_at).toLocaleString("id")}</td>
+                  <td>
+                    <DeleteButton
+                      inputs={{ file_id: file.id }}
+                      description={file.filename}
+                      className="d-inline-block m-1"
+                    />
+                  </td>
                 </tr>
               ))}
               {!files.length && (
