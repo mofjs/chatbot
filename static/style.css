@@ -29,6 +29,7 @@ body>footer {
   color: var(--pico-form-element-color);
   border: var(--pico-border-width) solid var(--pico-form-element-border-color);
   border-radius: var(--pico-border-radius);
+  margin-bottom: var(--pico-spacing);
   overflow: hidden;
 }
 

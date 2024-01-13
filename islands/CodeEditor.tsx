@@ -27,10 +27,18 @@ export default function CodeEditor(props: Props) {
       require.config({ paths: { vs: "/vs" } });
       require(["vs/editor/editor.main"], () => {
         const editor = monaco.editor.create(divEl.current!, {
-          value: props.value?.toString(),
+          value: (props.value ?? props.defaultValue)?.toString(),
           language: props.language,
           theme: "vs-dark",
-        }, { name: props.name });
+        });
+        const updateValue = () => {
+          if (textareaEl.current) {
+            const newValue = editor.getValue();
+            if (newValue) textareaEl.current.value = newValue;
+          }
+        };
+        editor.onDidChangeModelContent(updateValue);
+        updateValue();
       });
     }
   }, []);
