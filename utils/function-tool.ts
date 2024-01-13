@@ -2,7 +2,7 @@ import { z } from "zod";
 import { kv } from "~/utils/kv.ts";
 
 export const functionToolSchema = z.object({
-  name: z.string().regex(/^[\w-]+/).max(64),
+  name: z.string().regex(/^[\w-]+$/).max(64),
   description: z.string().optional(),
   parameters: z.string().transform(
     (arg, ctx) => {
