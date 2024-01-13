@@ -22,7 +22,7 @@ export default defineLayout<Record<string, unknown>>(
                 <a href="/chats">Chats</a>
               </li>
               <li>
-                <a href="/settings">Settings</a>
+                <a href="/function-tools">Function Tools</a>
               </li>
             </ul>
           </nav>

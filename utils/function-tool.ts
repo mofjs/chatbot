@@ -2,9 +2,29 @@ import { z } from "zod";
 import { kv } from "~/utils/kv.ts";
 
 export const functionToolSchema = z.object({
-  name: z.string().regex(/^[\w-]+/),
+  name: z.string().regex(/^[\w-]+/).max(64),
   description: z.string().optional(),
-  parameters: z.record(z.any()),
+  parameters: z.string().transform(
+    (arg, ctx) => {
+      try {
+        return z.record(z.any()).parse(JSON.parse(arg));
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: error.message,
+            fatal: true,
+          });
+        }
+        if (error instanceof z.ZodError) {
+          for (const issue of error.issues) {
+            ctx.addIssue(issue);
+          }
+        }
+        return z.NEVER;
+      }
+    },
+  ).or(z.record(z.any())),
   script: z.string(),
 });
 
@@ -26,6 +46,10 @@ export const getFunctionTool = async (name: string) => {
 
 export const setFunctionTool = async (value: FunctionTool) => {
   await kv.set(["function-tools", value.name], value);
+};
+
+export const deleteFunctionTool = async (name: string) => {
+  await kv.delete(["function-tools", name]);
 };
 
 export const execFunctionTool = async (name: string, args: string) => {

@@ -19,6 +19,12 @@ import * as $chats_jid_index from "./routes/chats/[jid]/index.tsx";
 import * as $chats_layout from "./routes/chats/_layout.tsx";
 import * as $chats_create from "./routes/chats/create.tsx";
 import * as $chats_index from "./routes/chats/index.tsx";
+import * as $function_tools_name_middleware from "./routes/function-tools/[name]/_middleware.ts";
+import * as $function_tools_name_edit from "./routes/function-tools/[name]/edit.tsx";
+import * as $function_tools_name_index from "./routes/function-tools/[name]/index.tsx";
+import * as $function_tools_layout from "./routes/function-tools/_layout.tsx";
+import * as $function_tools_create from "./routes/function-tools/create.tsx";
+import * as $function_tools_index from "./routes/function-tools/index.tsx";
 import * as $index from "./routes/index.tsx";
 import * as $DeleteButton from "./islands/DeleteButton.tsx";
 import { type Manifest } from "$fresh/server.ts";
@@ -42,6 +48,13 @@ const manifest = {
     "./routes/chats/_layout.tsx": $chats_layout,
     "./routes/chats/create.tsx": $chats_create,
     "./routes/chats/index.tsx": $chats_index,
+    "./routes/function-tools/[name]/_middleware.ts":
+      $function_tools_name_middleware,
+    "./routes/function-tools/[name]/edit.tsx": $function_tools_name_edit,
+    "./routes/function-tools/[name]/index.tsx": $function_tools_name_index,
+    "./routes/function-tools/_layout.tsx": $function_tools_layout,
+    "./routes/function-tools/create.tsx": $function_tools_create,
+    "./routes/function-tools/index.tsx": $function_tools_index,
     "./routes/index.tsx": $index,
   },
   islands: {
