@@ -8,6 +8,7 @@ export default defineApp((_req, { Component }) => (
       <title>Chatbot</title>
       <link rel="stylesheet" href="/pico.min.css" />
       <link rel="stylesheet" href="/style.css" />
+      <script src="/vs/loader.js" defer></script>
     </head>
     <body>
       <Component />

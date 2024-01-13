@@ -1,6 +1,7 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { z } from "zod";
 import { functionToolSchema, setFunctionTool } from "~/utils/function-tool.ts";
+import CodeEditor from "~/islands/CodeEditor.tsx";
 
 type PagePropsData = {
   formData?: FormData;
@@ -77,7 +78,7 @@ export default function CreateFunctionToolPage(
       </label>
       <label htmlFor="parameters">
         Parameters
-        <textarea
+        <CodeEditor
           id="parameters-input"
           name="parameters"
           placeholder={`{"type": "string"}`}
@@ -88,6 +89,7 @@ export default function CreateFunctionToolPage(
           aria-describedby={errors?.parameters?._errors.length
             ? "parameters-error"
             : undefined}
+          language="json"
         />
         {!!errors?.parameters?._errors.length && (
           <small id="parameters-error">
@@ -97,7 +99,7 @@ export default function CreateFunctionToolPage(
       </label>
       <label htmlFor="script">
         Script
-        <textarea
+        <CodeEditor
           id="script-input"
           name="script"
           placeholder={`console.log("Hello world.");`}
@@ -108,6 +110,7 @@ export default function CreateFunctionToolPage(
           aria-describedby={errors?.script?._errors.length
             ? "script-error"
             : undefined}
+          language="typescript"
         />
         {!!errors?.script?._errors.length && (
           <small id="script-error">
