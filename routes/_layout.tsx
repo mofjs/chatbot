@@ -34,7 +34,14 @@ export default defineLayout<Record<string, unknown>>(
         <footer className="container-fluid">
           <hr />
           <p>
-            Chatbot by <a href="http://github.com/mofjs">MoF.JS</a>
+            {"Chatbot by "}
+            <a
+              href="https://github.com/mofjs"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              MoF.JS
+            </a>
           </p>
         </footer>
       </>

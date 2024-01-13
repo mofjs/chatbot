@@ -17,6 +17,10 @@ export default function Home() {
           <h2>Chats</h2>
           <a href="/chats">Manage Chats</a>
         </section>
+        <section id="function-tools">
+          <h2>Function Tools</h2>
+          <a href="/function-tools">Manage Function Tools</a>
+        </section>
       </div>
     </article>
   );
