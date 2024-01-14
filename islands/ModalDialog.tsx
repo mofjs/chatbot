@@ -10,11 +10,15 @@ const isOpenSignal = computed(() =>
 
 if (IS_BROWSER) {
   const rootEl = document.documentElement;
-  effect(() =>
-    rootEl.classList.add(
-      dialogContentSignal.value ? "modal-is-opening" : "modal-is-closing",
-    )
-  );
+  effect(() => {
+    if (isAnimatingSignal.value) {
+      rootEl.classList.add(
+        dialogContentSignal.peek() ? "modal-is-opening" : "modal-is-closing",
+      );
+    } else {
+      rootEl.classList.remove("modal-is-opening", "modal-is-closing");
+    }
+  });
 
   effect(() => {
     if (isOpenSignal.value) {
@@ -25,7 +29,6 @@ if (IS_BROWSER) {
   });
 
   rootEl.addEventListener("animationend", () => {
-    rootEl.classList.remove("modal-is-opening", "modal-is-closing");
     isAnimatingSignal.value = false;
   });
 }
@@ -33,6 +36,12 @@ if (IS_BROWSER) {
 export function showDialog(content: ComponentChildren) {
   dialogContentSignal.value = content;
   isAnimatingSignal.value = true;
+}
+
+export function updateDialog(content: ComponentChildren) {
+  if (dialogContentSignal.peek()) {
+    dialogContentSignal.value = content;
+  }
 }
 
 export function closeDialog() {
