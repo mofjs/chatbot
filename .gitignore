@@ -5,5 +5,8 @@
 .env.production.local
 .env.local
 
+# mac OS
+.DS_Store
+
 # Fresh build directory
 _fresh/
