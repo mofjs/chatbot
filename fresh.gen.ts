@@ -28,6 +28,8 @@ import * as $function_tools_index from "./routes/function-tools/index.tsx";
 import * as $index from "./routes/index.tsx";
 import * as $CodeEditor from "./islands/CodeEditor.tsx";
 import * as $DeleteButton from "./islands/DeleteButton.tsx";
+import * as $ModalDialog from "./islands/ModalDialog.tsx";
+import * as $TryRun from "./islands/TryRun.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -61,6 +63,8 @@ const manifest = {
   islands: {
     "./islands/CodeEditor.tsx": $CodeEditor,
     "./islands/DeleteButton.tsx": $DeleteButton,
+    "./islands/ModalDialog.tsx": $ModalDialog,
+    "./islands/TryRun.tsx": $TryRun,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;

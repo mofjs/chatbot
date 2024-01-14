@@ -1,4 +1,5 @@
 import { defineApp } from "$fresh/server.ts";
+import ModalDialog from "~/islands/ModalDialog.tsx";
 
 export default defineApp((_req, { Component }) => (
   <html>
@@ -12,6 +13,7 @@ export default defineApp((_req, { Component }) => (
     </head>
     <body>
       <Component />
+      <ModalDialog />
     </body>
   </html>
 ));
