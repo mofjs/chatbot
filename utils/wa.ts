@@ -1,5 +1,5 @@
-import { boolean, z } from "zod";
-import mqtt from "mqtt";
+import { z } from "zod";
+import { connect, MqttClient } from "mqtt";
 import { parseArgs } from "$std/cli/parse_args.ts";
 import { env } from "~/utils/env.ts";
 
@@ -90,10 +90,10 @@ export type WAMessage = z.infer<typeof WAMessageSchema>;
 
 export type WASendMessage = z.infer<typeof WASendMessageSchema>;
 
-let client: mqtt.MqttClient;
+let client: MqttClient;
 
 export function listen(handler: (payload: WAMessage) => void) {
-  client = mqtt.connect(env.WA_URL, { manualConnect: true })
+  client = connect(env.WA_URL, { manualConnect: true })
     .once("connect", () => client.subscribe("wa/messages/in/+"))
     .on("message", (_topic, payload) => {
       const data = JSON.parse(payload.toString());
