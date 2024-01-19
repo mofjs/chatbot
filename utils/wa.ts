@@ -1,5 +1,6 @@
-import { z } from "zod";
+import { boolean, z } from "zod";
 import mqtt from "mqtt";
+import { parseArgs } from "$std/cli/parse_args.ts";
 import { env } from "~/utils/env.ts";
 
 export const WAMessageSchema = z.object({
@@ -100,7 +101,13 @@ export function listen(handler: (payload: WAMessage) => void) {
       if (parseResult.success) {
         handler(parseResult.data);
       } else {
-        console.error(parseResult.error);
+        if (
+          parseArgs(Deno.args, {
+            boolean: ["verbose"],
+          }).verbose
+        ) {
+          console.error(parseResult.error);
+        }
       }
     })
     .on("error", console.error)
