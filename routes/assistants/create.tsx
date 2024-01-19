@@ -47,7 +47,7 @@ type PagePropsData = {
   models: Model[];
   functionTools: FunctionTool[];
   formData?: FormData;
-  errors?: z.ZodFormattedError<z.infer<typeof createAssistantSchema>>;
+  errors?: z.ZodFormattedError<z.input<typeof createAssistantSchema>>;
 };
 
 export const handler: Handlers<PagePropsData> = {
