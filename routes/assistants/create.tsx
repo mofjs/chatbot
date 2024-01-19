@@ -189,13 +189,12 @@ export default function CreateAssistantPage(
         })}
         <hr />
         <legend>Functions</legend>
-        {functionTools.map((f) => {
-          const id = f.name + "-input";
-          const value = JSON.stringify(f, [
-            "name",
-            "description",
-            "parameters",
-          ]);
+        {functionTools.map(({ name, description, parameters }) => {
+          const id = name + "-input";
+          const value = JSON.stringify({
+            type: "function",
+            function: { name, description, parameters },
+          });
           return (
             <label htmlFor={id}>
               <input
@@ -208,7 +207,7 @@ export default function CreateAssistantPage(
                   v.toString() === value
                 )}
               />
-              {f.name}
+              {name}
             </label>
           );
         })}
