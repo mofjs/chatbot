@@ -63,7 +63,7 @@ export default defineRoute<ContextState>(async (_req, { state: { chat } }) => {
                 <td>{message.role}</td>
                 <td>
                   {message.content.map((c) =>
-                    c.type == "text" && c.text || "[Image]"
+                    c.type == "text" && c.text.value || "[Image]"
                   ).join("\n")}
                 </td>
                 <td>{new Date(message.created_at).toLocaleString("id")}</td>
