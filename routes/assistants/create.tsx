@@ -211,11 +211,6 @@ export default function CreateAssistantPage(
             </label>
           );
         })}
-        {!!errors?.tools?._errors.length && (
-          <small id="tools-error">
-            {errors.tools._errors.join(" | ")}
-          </small>
-        )}
       </fieldset>
       <button type="submit">Create!</button>
     </form>

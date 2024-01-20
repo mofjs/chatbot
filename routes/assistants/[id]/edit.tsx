@@ -200,13 +200,12 @@ export default function EditAssistantPage(
         })}
         <hr />
         <legend>Functions</legend>
-        {functionTools.map((f) => {
-          const id = f.name + "-input";
-          const value = JSON.stringify(f, [
-            "name",
-            "description",
-            "parameters",
-          ]);
+        {functionTools.map(({ name, description, parameters }) => {
+          const id = name + "-input";
+          const value = JSON.stringify({
+            type: "function",
+            function: { name, description, parameters },
+          });
           return (
             <label htmlFor={id}>
               <input
@@ -218,10 +217,10 @@ export default function EditAssistantPage(
                 defaultChecked={formData?.getAll("tools").some((v) =>
                   v.toString() === value
                 ) ?? assistant.tools.some((tool) =>
-                  tool.type === "function" && tool.function.name === f.name
+                  tool.type === "function" && tool.function.name === name
                 )}
               />
-              {f.name}
+              {name}
             </label>
           );
         })}
