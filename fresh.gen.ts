@@ -14,6 +14,7 @@ import * as $assistants_id_upload from "./routes/assistants/[id]/upload.tsx";
 import * as $assistants_layout from "./routes/assistants/_layout.tsx";
 import * as $assistants_create from "./routes/assistants/create.tsx";
 import * as $assistants_index from "./routes/assistants/index.tsx";
+import * as $chats_jid_middleware from "./routes/chats/[jid]/_middleware.ts";
 import * as $chats_jid_edit from "./routes/chats/[jid]/edit.tsx";
 import * as $chats_jid_index from "./routes/chats/[jid]/index.tsx";
 import * as $chats_layout from "./routes/chats/_layout.tsx";
@@ -46,6 +47,7 @@ const manifest = {
     "./routes/assistants/_layout.tsx": $assistants_layout,
     "./routes/assistants/create.tsx": $assistants_create,
     "./routes/assistants/index.tsx": $assistants_index,
+    "./routes/chats/[jid]/_middleware.ts": $chats_jid_middleware,
     "./routes/chats/[jid]/edit.tsx": $chats_jid_edit,
     "./routes/chats/[jid]/index.tsx": $chats_jid_index,
     "./routes/chats/_layout.tsx": $chats_layout,

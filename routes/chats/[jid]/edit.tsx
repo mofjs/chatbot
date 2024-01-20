@@ -8,24 +8,22 @@ const editChatSchema = chatSchema.omit({ jid: true, thread_id: true });
 const replyToOptions = editChatSchema.shape.reply_to.options;
 
 type PagePropsData = {
-  chat: Chat;
   assistants: Assistant[];
   formData?: FormData;
   errors?: z.ZodFormattedError<z.infer<typeof editChatSchema>>;
 };
 
-export const handler: Handlers<PagePropsData> = {
+type ContextState = {
+  chat: Chat;
+};
+
+export const handler: Handlers<PagePropsData, ContextState> = {
   async GET(_req, ctx) {
-    const jid = ctx.params.jid;
-    const chat = await getChat(jid);
-    if (!chat) return ctx.renderNotFound();
     const assistants = (await openai.beta.assistants.list()).data;
-    return ctx.render({ chat, assistants });
+    return ctx.render({ assistants });
   },
   async POST(req, ctx) {
-    const jid = ctx.params.jid;
-    const chat = await getChat(jid);
-    if (!chat) return ctx.renderNotFound();
+    const chat = ctx.state.chat;
     const formData = await req.formData();
     const parseResult = await editChatSchema.spa(Object.fromEntries(formData));
     if (parseResult.success) {
@@ -34,12 +32,15 @@ export const handler: Handlers<PagePropsData> = {
     }
     const errors = parseResult.error.format();
     const assistants = (await openai.beta.assistants.list()).data;
-    return ctx.render({ chat, assistants, formData, errors }, { status: 400 });
+    return ctx.render({ assistants, formData, errors }, { status: 400 });
   },
 };
 
 export default function ChatEditPage(
-  { data: { chat, assistants, formData, errors } }: PageProps<PagePropsData>,
+  { data: { assistants, formData, errors }, state: { chat } }: PageProps<
+    PagePropsData,
+    ContextState
+  >,
 ) {
   return (
     <form action="" method="post">
