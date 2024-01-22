@@ -1,6 +1,7 @@
 import { defineRoute, Handlers } from "$fresh/server.ts";
 import { Assistant, openai } from "~/utils/openai.ts";
 import DeleteButton from "~/islands/DeleteButton.tsx";
+import { formatDateTime } from "~/utils/format.ts";
 
 type ContextState = {
   assistant: Assistant;
@@ -112,7 +113,7 @@ export default defineRoute<ContextState>(
                   <td>{file.filename}</td>
                   <td>{file.purpose}</td>
                   <td>{file.bytes}</td>
-                  <td>{new Date(file.created_at).toLocaleString("id")}</td>
+                  <td>{formatDateTime(file.created_at)}</td>
                   <td>
                     <DeleteButton
                       inputs={{ file_id: file.id }}

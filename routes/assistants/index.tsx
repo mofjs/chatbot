@@ -1,6 +1,7 @@
 import { defineRoute, Handlers } from "$fresh/server.ts";
 import { openai } from "~/utils/openai.ts";
 import DeleteButton from "~/islands/DeleteButton.tsx";
+import { formatDateTime } from "~/utils/format.ts";
 
 export const handler: Handlers = {
   async POST(req, _ctx) {
@@ -51,7 +52,7 @@ export default defineRoute(async (_req, _ctx) => {
                 </td>
                 <td>{a.model}</td>
                 <td>
-                  {new Date(a.created_at * 1000).toLocaleString("id")}
+                  {formatDateTime(a.created_at)}
                 </td>
                 <td>
                   <a

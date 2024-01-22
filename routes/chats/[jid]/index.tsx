@@ -1,6 +1,7 @@
 import { defineRoute } from "$fresh/server.ts";
 import { Chat } from "~/utils/chats.ts";
 import { openai } from "~/utils/openai.ts";
+import { formatDateTime } from "~/utils/format.ts";
 
 type ContextState = {
   chat: Chat;
@@ -66,7 +67,9 @@ export default defineRoute<ContextState>(async (_req, { state: { chat } }) => {
                     c.type == "text" && c.text.value || "[Image]"
                   ).join("\n")}
                 </td>
-                <td>{new Date(message.created_at).toLocaleString("id")}</td>
+                <td>
+                  {formatDateTime(message.created_at)}
+                </td>
               </tr>
             ))}
             {!messages.length && (
