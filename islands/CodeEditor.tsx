@@ -54,6 +54,7 @@ export default function CodeEditor(props: Props) {
           language: props.language,
           theme: "vs-dark",
           formatOnType: true,
+          formatOnPaste: true,
         });
         const updateValue = () => {
           if (textareaEl.current) {

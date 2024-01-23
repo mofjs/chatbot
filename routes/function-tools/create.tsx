@@ -76,7 +76,7 @@ export default function CreateFunctionToolPage(
           </small>
         )}
       </label>
-      <label htmlFor="parameters">
+      <label htmlFor="parameters-input">
         Parameters
         <CodeEditor
           id="parameters-input"
@@ -97,7 +97,7 @@ export default function CreateFunctionToolPage(
           </small>
         )}
       </label>
-      <label htmlFor="script">
+      <label htmlFor="script-input">
         Script
         <CodeEditor
           id="script-input"

@@ -85,7 +85,7 @@ export default function EditFunctionToolPage(
           </small>
         )}
       </label>
-      <label htmlFor="parameters">
+      <label htmlFor="parameters-input">
         Parameters
         <CodeEditor
           id="parameters-input"
@@ -94,7 +94,7 @@ export default function EditFunctionToolPage(
           cols={80}
           rows={5}
           defaultValue={formData?.get("parameters")?.toString() ??
-            JSON.stringify(functionTool.parameters)}
+            JSON.stringify(functionTool.parameters, undefined, 4)}
           aria-invalid={errors?.parameters?._errors.length ? true : undefined}
           aria-describedby={errors?.parameters?._errors.length
             ? "parameters-error"
@@ -107,7 +107,7 @@ export default function EditFunctionToolPage(
           </small>
         )}
       </label>
-      <label htmlFor="script">
+      <label htmlFor="script-input">
         Script
         <CodeEditor
           id="script-input"
