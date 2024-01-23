@@ -24,13 +24,18 @@ body>footer {
 
 .monaco-editor-container {
   width: 100%;
-  height: 5rem;
+  height: 7rem;
+  padding: 0.25rem;
   background-color: var(--pico-form-element-background-color);
   color: var(--pico-form-element-color);
   border: var(--pico-border-width) solid var(--pico-form-element-border-color);
   border-radius: var(--pico-border-radius);
   margin-bottom: var(--pico-spacing);
-  overflow: hidden;
+}
+
+.monaco-editor-container>div {
+  width: 100%;
+  height: 100%;
 }
 
 .monaco-editor-container * {
