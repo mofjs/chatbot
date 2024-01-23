@@ -26,6 +26,7 @@ import * as $function_tools_name_index from "./routes/function-tools/[name]/inde
 import * as $function_tools_layout from "./routes/function-tools/_layout.tsx";
 import * as $function_tools_create from "./routes/function-tools/create.tsx";
 import * as $function_tools_index from "./routes/function-tools/index.tsx";
+import * as $function_tools_playground from "./routes/function-tools/playground.tsx";
 import * as $index from "./routes/index.tsx";
 import * as $CodeEditor from "./islands/CodeEditor.tsx";
 import * as $DeleteButton from "./islands/DeleteButton.tsx";
@@ -60,6 +61,7 @@ const manifest = {
     "./routes/function-tools/_layout.tsx": $function_tools_layout,
     "./routes/function-tools/create.tsx": $function_tools_create,
     "./routes/function-tools/index.tsx": $function_tools_index,
+    "./routes/function-tools/playground.tsx": $function_tools_playground,
     "./routes/index.tsx": $index,
   },
   islands: {
