@@ -38,7 +38,6 @@ export default function CodeEditor(props: Props) {
             "lib.dom.d.ts",
             "lib.dom.extras.d.ts",
           ];
-
           for await (
             const content of libs.map((lib) =>
               fetch(new URL(lib, DTS_BASE_URL)).then((r) => r.text())

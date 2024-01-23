@@ -22,6 +22,6 @@
     "mqtt": "npm:mqtt@5.3.3"
   },
   "compilerOptions": { "jsx": "react-jsx", "jsxImportSource": "preact" },
-  "exclude": ["**/_fresh/*"],
+  "exclude": ["**/_fresh/*", "static/vs/*"],
   "unstable": ["kv"]
 }

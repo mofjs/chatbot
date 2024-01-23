@@ -1,5 +1,7 @@
 export default function TryRun() {
-  return <>
-  <dialog></dialog>
-  </>
+  return (
+    <>
+      <dialog></dialog>
+    </>
+  );
 }
