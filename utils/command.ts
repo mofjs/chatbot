@@ -2,46 +2,76 @@ import { Assistant, openai } from "~/utils/openai.ts";
 import { getChat, setChat } from "~/utils/chats.ts";
 import { getContent, input, send, WAMessage } from "~/utils/wa.ts";
 
+class TimeoutError extends Error {}
+
+function log(jid: string, message: string) {
+  send({ jid, content: { text: ["```", message, "```"].join("\n") } });
+}
+
+function error(jid: string, e: unknown) {
+  const text = `${e}`.split("\n").map((line) => "> " + line).join("\n");
+  send({ jid, content: { text } });
+}
+
+async function alert(jid: string, message: string, timeout = 3000) {
+  log(jid, message);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  try {
+    await input(jid, controller.signal);
+  } catch {
+    // ignore any error
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 function isTrue(arg?: string | null) {
   if (!arg) return false;
   const s = arg.toLowerCase();
   if (["n", "no", "false", "cancel"].includes(s)) return false;
   if (["y", "yes", "true", "ok"].includes(s)) return true;
-  return Boolean(s);
+  throw new Error("Invalid argument.");
 }
 
-function alert(jid: string, message: string, timeout = 3000) {
-  send({ jid, content: { text: ["```", message, "```"].join("\n") } });
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-  input(jid, controller.signal)
-    .catch(() => {})
-    .finally(() => clearTimeout(timeoutId));
-}
-
-function confirm(
+async function confirm(
   jid: string,
   message: string,
   timeout = 10_000,
 ) {
-  send({ jid, content: { text: ["```", message, "```"].join("\n") } });
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-  return input(jid, controller.signal)
-    .then((message) => isTrue(getContent(message)))
-    .catch(() => false)
-    .finally(() => clearTimeout(timeoutId));
-}
-
-function prompt(jid: string, message: string, timeout = 60_000) {
-  send({ jid, content: { text: ["```", message, "```"].join("\n") } });
+  log(jid, message);
   const controller = new AbortController();
   const timeoutId = setTimeout(
-    () => controller.abort(new Error("Prompt reply timeout!")),
+    () => controller.abort(new TimeoutError("Confirm reply timeout!")),
     timeout,
   );
-  return input(jid, controller.signal)
-    .finally(() => clearTimeout(timeoutId));
+  try {
+    const message = await input(jid, controller.signal);
+    return isTrue(getContent(message));
+  } catch (e) {
+    if (e instanceof TimeoutError) {
+      error(jid, e);
+      return false;
+    } else {
+      throw e;
+    }
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function prompt(jid: string, message: string, timeout = 60_000) {
+  log(jid, message);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(
+    () => controller.abort(new TimeoutError("Prompt reply timeout!")),
+    timeout,
+  );
+  try {
+    return await input(jid, controller.signal);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 export async function handleCommand(waMessage: WAMessage): Promise<void> {
@@ -54,15 +84,14 @@ export async function handleCommand(waMessage: WAMessage): Promise<void> {
       case "jid":
         await alert(jid, jid);
         break;
-      case "assistants": {
-        handleAssistant(jid);
+      case "assistants":
+        await handleAssistant(jid);
         break;
-      }
       default:
         break;
     }
-  } catch (error) {
-    send({ jid, content: { text: `> ${error}` } });
+  } catch (e) {
+    error(jid, e);
   }
 }
 
@@ -96,8 +125,8 @@ async function handleAssistant(jid: string) {
   );
   if (confirmed) {
     await setChat({ ...chat, assistant_id: chosen.id });
-    alert(jid, "Assistant changed.");
+    await alert(jid, "Assistant changed.");
   } else {
-    alert(jid, "Operation canceled.");
+    await alert(jid, "Operation canceled.");
   }
 }
