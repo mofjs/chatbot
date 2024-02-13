@@ -12,9 +12,9 @@ function isTrue(arg?: string | null) {
 
 function alert(jid: string, message: string, timeout = 3000) {
   send({ jid, content: { text: ["```", message, "```"].join("\n") } });
-  const { signal, abort } = new AbortController();
-  const timeoutId = setTimeout(() => abort(), timeout);
-  input(jid, signal)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  input(jid, controller.signal)
     .catch(() => {})
     .finally(() => clearTimeout(timeoutId));
 }
@@ -25,9 +25,9 @@ function confirm(
   timeout = 10_000,
 ) {
   send({ jid, content: { text: ["```", message, "```"].join("\n") } });
-  const { signal, abort } = new AbortController();
-  const timeoutId = setTimeout(() => abort(), timeout);
-  return input(jid, signal)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  return input(jid, controller.signal)
     .then((message) => isTrue(getContent(message)))
     .catch(() => false)
     .finally(() => clearTimeout(timeoutId));
@@ -35,12 +35,12 @@ function confirm(
 
 function prompt(jid: string, message: string, timeout = 60_000) {
   send({ jid, content: { text: ["```", message, "```"].join("\n") } });
-  const { signal, abort } = new AbortController();
+  const controller = new AbortController();
   const timeoutId = setTimeout(
-    () => abort(new Error("Prompt reply timeout!")),
+    () => controller.abort(new Error("Prompt reply timeout!")),
     timeout,
   );
-  return input(jid, signal)
+  return input(jid, controller.signal)
     .finally(() => clearTimeout(timeoutId));
 }
 
