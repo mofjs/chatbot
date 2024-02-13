@@ -133,17 +133,19 @@ export function send({ jid, content, options }: WASendMessage) {
 
 export function input(jid: string, signal?: AbortSignal): Promise<WAMessage> {
   return new Promise((res, rej) => {
+    const abortListener: EventListener = (_event) => rej(signal?.reason);
     addEventListener(
       "input:" + jid,
       ((event: CustomEvent<WAMessage>) => {
         res(event.detail);
         event.preventDefault();
+        signal?.removeEventListener("abort", abortListener);
       }) as EventListener,
       { capture: true, once: true, signal },
     );
     signal?.addEventListener(
       "abort",
-      () => rej(signal.reason),
+      abortListener,
     );
   });
 }
