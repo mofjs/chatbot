@@ -1,24 +1,20 @@
 import { env } from "~/utils/env.ts";
 import { getChat } from "~/utils/chats.ts";
 import { openai } from "~/utils/openai.ts";
-import { send, WAMessage } from "~/utils/wa.ts";
+import { getContent, send, WAMessage } from "~/utils/wa.ts";
 import { handleCommand } from "~/utils/command.ts";
 import { execFunctionTool } from "~/utils/function-tool.ts";
 
 export async function handle_message(waMessage: WAMessage) {
   const jid = waMessage.key.remoteJid;
   if (!jid) return;
-  const chat = await getChat(jid);
-  const content = (waMessage.message?.conversation ??
-    waMessage.message?.extendedTextMessage?.text)?.trim();
+  const content = getContent(waMessage)?.trim();
   if (!content) return;
   if (content.startsWith("/")) {
-    const reply = await handleCommand(waMessage);
-    if (reply) {
-      await send(reply);
-      return;
-    }
+    await handleCommand(waMessage);
+    return;
   }
+  const chat = await getChat(jid);
   if (!chat || !chat.assistant_id || chat.reply_to === "none") return;
   const contextInfo = waMessage.message?.extendedTextMessage?.contextInfo;
   const isMentioned = contextInfo?.mentionedJid?.includes(env.SELF_JID);
@@ -67,15 +63,15 @@ export async function pollsRun(thread_id: string, run_id: string) {
     const run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
     switch (run.status) {
       case "completed": {
-        const response = await openai.beta.threads.messages.list(thread_id, {
+        const page = await openai.beta.threads.messages.list(thread_id, {
           order: "desc",
           limit: 1,
         });
-        const message = response.data.at(0);
+        const message = page.data.at(0);
         if (message?.role === "assistant") {
           return message;
         }
-        return null;
+        return;
       }
       case "requires_action": {
         const tool_calls = run.required_action?.submit_tool_outputs.tool_calls;
@@ -97,7 +93,7 @@ export async function pollsRun(thread_id: string, run_id: string) {
       case "cancelling":
       case "expired":
       case "failed":
-        return null;
+        return;
       default:
         await new Promise((resolve) => setTimeout(resolve, 500));
         break;

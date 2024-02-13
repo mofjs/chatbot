@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { connect, MqttClient } from "mqtt";
+import { connect } from "mqtt";
 import { parseArgs } from "$std/cli/parse_args.ts";
 import { env } from "~/utils/env.ts";
 
@@ -90,16 +90,21 @@ export type WAMessage = z.infer<typeof WAMessageSchema>;
 
 export type WASendMessage = z.infer<typeof WASendMessageSchema>;
 
-let client: MqttClient;
+const client = connect(env.WA_URL, { manualConnect: true });
 
 export function listen(handler: (payload: WAMessage) => void) {
-  client = connect(env.WA_URL, { manualConnect: true })
+  client
     .once("connect", () => client.subscribe("wa/messages/in/+"))
     .on("message", (_topic, payload) => {
       const data = JSON.parse(payload.toString());
       const parseResult = WAMessageSchema.safeParse(data);
       if (parseResult.success) {
-        handler(parseResult.data);
+        const message = parseResult.data;
+        const event = new CustomEvent("input:" + message.key.remoteJid, {
+          detail: message,
+          cancelable: true,
+        });
+        if (dispatchEvent(event)) handler(message);
       } else {
         if (
           parseArgs(Deno.args, {
@@ -114,10 +119,31 @@ export function listen(handler: (payload: WAMessage) => void) {
     .connect();
 }
 
+export function getContent({ message }: WAMessage) {
+  return message?.conversation ?? message?.extendedTextMessage?.text;
+}
+
 export function send({ jid, content, options }: WASendMessage) {
   if (!client.connected) client.reconnect();
   client.publish(
     "wa/messages/out/" + jid,
     JSON.stringify([jid, content, options]),
   );
+}
+
+export function input(jid: string, signal?: AbortSignal): Promise<WAMessage> {
+  return new Promise((res, rej) => {
+    addEventListener(
+      "input:" + jid,
+      ((event: CustomEvent<WAMessage>) => {
+        res(event.detail);
+        event.preventDefault();
+      }) as EventListener,
+      { capture: true, once: true, signal },
+    );
+    signal?.addEventListener(
+      "abort",
+      () => rej(new Error("Reply time out.")),
+    );
+  });
 }
