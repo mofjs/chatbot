@@ -2,8 +2,6 @@ import { Assistant, openai } from "~/utils/openai.ts";
 import { getChat, setChat } from "~/utils/chats.ts";
 import { getContent, input, send, WAMessage } from "~/utils/wa.ts";
 
-const DEFAULT_TIMEOUT = 60_000;
-
 function isTrue(arg: string) {
   const s = arg.toLowerCase();
   if (["n", "no", "false", "cancel"].includes(s)) return false;
@@ -21,7 +19,7 @@ async function alert(jid: string, message: string, timeout = 3000) {
 async function confirm(
   jid: string,
   message: string,
-  timeout = DEFAULT_TIMEOUT,
+  timeout = 10_000,
 ) {
   await send({ jid, content: { text: ["```", message, "```"].join("\n") } });
   const { signal, abort } = new AbortController();
@@ -31,9 +29,11 @@ async function confirm(
     .catch(() => false);
 }
 
-async function prompt(jid: string, message: string) {
+async function prompt(jid: string, message: string, timeout = 60_000) {
   await send({ jid, content: { text: ["```", message, "```"].join("\n") } });
-  return await input(jid);
+  const { signal, abort } = new AbortController();
+  setTimeout(abort, timeout);
+  return await input(jid, signal);
 }
 
 export async function handleCommand(waMessage: WAMessage): Promise<void> {
@@ -61,7 +61,7 @@ export async function handleCommand(waMessage: WAMessage): Promise<void> {
               `${i + 1}: ${a.name}` +
               (a.id === chat.assistant_id ? " (current)" : "")
             ).join("\n") +
-            "\nReply with the assistant number:",
+            "\n\nReply with the assistant number:",
         );
         const content = getContent(message);
         if (!content) throw new Error("Message can't be empty.");
@@ -69,7 +69,7 @@ export async function handleCommand(waMessage: WAMessage): Promise<void> {
         if (!chosen) throw new Error("No Assistant with associated number.");
         const confirmed = await confirm(
           jid,
-          "Change to this assistant?" +
+          "Change to this assistant?\n\n" +
             ["name", "description", "model"].map((k) =>
               `${k}: ${chosen[k as keyof Assistant]}`
             ).join("\n"),
