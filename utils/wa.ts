@@ -143,7 +143,7 @@ export function input(jid: string, signal?: AbortSignal): Promise<WAMessage> {
     );
     signal?.addEventListener(
       "abort",
-      () => rej(new Error("Reply time out.")),
+      () => rej(signal.reason),
     );
   });
 }

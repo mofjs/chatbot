@@ -6,34 +6,38 @@ function isTrue(arg: string) {
   const s = arg.toLowerCase();
   if (["n", "no", "false", "cancel"].includes(s)) return false;
   if (["y", "yes", "true", "ok"].includes(s)) return true;
-  return new Boolean(s);
+  return Boolean(s);
 }
 
-async function alert(jid: string, message: string, timeout = 3000) {
-  await send({ jid, content: { text: ["```", message, "```"].join("\n") } });
+function alert(jid: string, message: string, timeout = 3000) {
+  send({ jid, content: { text: ["```", message, "```"].join("\n") } });
   const { signal, abort } = new AbortController();
-  setTimeout(abort, timeout);
-  await input(jid, signal).catch(() => {});
+  const timeoutId = setTimeout(abort, timeout);
+  input(jid, signal)
+    .catch(() => {})
+    .finally(() => clearTimeout(timeoutId));
 }
 
-async function confirm(
+function confirm(
   jid: string,
   message: string,
   timeout = 10_000,
 ) {
-  await send({ jid, content: { text: ["```", message, "```"].join("\n") } });
+  send({ jid, content: { text: ["```", message, "```"].join("\n") } });
   const { signal, abort } = new AbortController();
-  setTimeout(abort, timeout);
+  const timeoutId = setTimeout(abort, timeout);
   return input(jid, signal)
     .then((message) => isTrue(getContent(message) ?? ""))
-    .catch(() => false);
+    .catch(() => false)
+    .finally(() => clearTimeout(timeoutId));
 }
 
-async function prompt(jid: string, message: string, timeout = 60_000) {
-  await send({ jid, content: { text: ["```", message, "```"].join("\n") } });
+function prompt(jid: string, message: string, timeout = 60_000) {
+  send({ jid, content: { text: ["```", message, "```"].join("\n") } });
   const { signal, abort } = new AbortController();
-  setTimeout(abort, timeout);
-  return await input(jid, signal);
+  const timeoutId = setTimeout(abort, timeout);
+  return input(jid, signal)
+    .finally(() => clearTimeout(timeoutId));
 }
 
 export async function handleCommand(waMessage: WAMessage): Promise<void> {
