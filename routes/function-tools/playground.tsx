@@ -4,18 +4,12 @@ import CodeEditor from "~/islands/CodeEditor.tsx";
 
 export const handler: Handlers = {
   async POST(req) {
-    const controller = new AbortController();
-    const { signal } = controller;
-    req.signal.addEventListener(
-      "abort",
-      () => controller.abort(req.signal.reason),
-      { signal },
-    );
+    // @ts-ignore: implemented in Deno 1.39
+    const signal = AbortSignal.any([AbortSignal.timeout(60_000), req.signal]);
     const formData = await req.formData();
     const script = formData.get("script")?.toString() ?? "";
     const argument = formData.get("argument")?.toString() ?? "";
     const readabale = execScriptStream(script, argument, signal);
-    setTimeout(() => controller.abort("Execution Timeout!"), 60_000);
     return new Response(
       readabale.pipeThrough(new TextEncoderStream(), { signal }),
       {
