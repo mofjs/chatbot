@@ -74,21 +74,22 @@ export function execScriptStream(
   signal?: AbortSignal,
 ) {
   const { stdout, stderr } = denoEval(script, arg, signal);
-  const { writable, readable } = new TransformStream<string, string>({
-    transform(chunk, controller) {
-      const cleanedChunk = chunk.replaceAll(
-        // deno-lint-ignore no-control-regex
-        /\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]/g,
-        "",
-      );
-      controller.enqueue(cleanedChunk + "\n");
-    },
-  });
-  mergeReadableStreams(stdout, stderr)
+  return mergeReadableStreams(stdout, stderr)
     .pipeThrough(new TextDecoderStream(), { signal })
     .pipeThrough(new TextLineStream(), { signal })
-    .pipeTo(writable, { signal });
-  return readable;
+    .pipeThrough(
+      new TransformStream<string, string>({
+        transform(chunk, controller) {
+          const cleanedChunk = chunk.replaceAll(
+            // deno-lint-ignore no-control-regex
+            /\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]/g,
+            "",
+          );
+          controller.enqueue(cleanedChunk + "\n");
+        },
+      }),
+      { signal },
+    );
 }
 
 function denoEval(script: string, arg: string, signal?: AbortSignal) {
