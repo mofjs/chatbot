@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { kv } from "~/utils/kv.ts";
-import { TextLineStream } from "$std/streams/mod.ts";
+import { mergeReadableStreams, TextLineStream } from "$std/streams/mod.ts";
 
 export const functionToolSchema = z.object({
   name: z.string().regex(/^[\w-]+$/).max(64),
@@ -84,25 +84,10 @@ export function execScriptStream(
       controller.enqueue(cleanedChunk + "\n");
     },
   });
-  Promise
-    .resolve()
-    .then(() => {
-      return stdout
-        .pipeThrough(new TextDecoderStream(), { signal })
-        .pipeThrough(new TextLineStream(), { signal })
-        .pipeTo(writable, {
-          preventAbort: true,
-          preventClose: true,
-          signal,
-        });
-    })
-    .then(() => {
-      return stderr
-        .pipeThrough(new TextDecoderStream(), { signal })
-        .pipeThrough(new TextLineStream(), { signal })
-        .pipeTo(writable, { signal });
-    })
-    .catch(console.error);
+  mergeReadableStreams(stdout, stderr)
+    .pipeThrough(new TextDecoderStream(), { signal })
+    .pipeThrough(new TextLineStream(), { signal })
+    .pipeTo(writable, { signal });
   return readable;
 }
 
