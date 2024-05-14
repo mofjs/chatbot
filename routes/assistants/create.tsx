@@ -10,7 +10,7 @@ import {
 const DEFAULT_MODEL = "gpt-3.5-turbo";
 
 const assistantToolSchema = z.union([
-  z.object({ type: z.enum(["code_interpreter", "retrieval"]) }),
+  z.object({ type: z.enum(["code_interpreter", "file_search"]) }),
   z.object({
     type: z.literal("function"),
     function: functionToolSchema.omit({ "script": true }),
@@ -168,7 +168,7 @@ export default function CreateAssistantPage(
       </label>
       <fieldset>
         <legend>Tools</legend>
-        {["code_interpreter", "retrieval"].map((t) => {
+        {["code_interpreter", "file_search"].map((t) => {
           const id = t + "-input";
           const value = JSON.stringify({ type: t });
           return (
