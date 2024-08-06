@@ -1,4 +1,4 @@
-import { IS_BROWSER } from "$fresh/runtime.ts";
+import { IS_BROWSER } from "fresh/runtime";
 import { computed, effect, signal } from "@preact/signals";
 import { ComponentChildren } from "preact";
 

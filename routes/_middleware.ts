@@ -1,10 +1,7 @@
-import { FreshContext } from "$fresh/server.ts";
 import { env } from "~/utils/env.ts";
+import { define } from "~/utils/define.ts";
 
-export function handler(
-  req: Request,
-  ctx: FreshContext,
-) {
+export const handler = define.handlers(({ req, next }) => {
   const authorization = req.headers.get("authorization");
   if (authorization) {
     const match = authorization.match(/^Basic\s+(.*)$/);
@@ -13,7 +10,7 @@ export function handler(
       if (
         username === env.WEB_ADMIN_USERNAME &&
         password === env.WEB_ADMIN_PASSWORD
-      ) return ctx.next();
+      ) return next();
     }
   }
 
@@ -24,4 +21,4 @@ export function handler(
       "www-authenticate": `Basic realm="Admin only."`,
     },
   });
-}
+});

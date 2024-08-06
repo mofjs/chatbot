@@ -1,8 +1,11 @@
 #!/usr/bin/env -S deno run -A --unstable --watch=static/,routes/
 
-import "$std/dotenv/load.ts";
+import { Builder } from "fresh/dev";
+import { app } from "~/main.ts";
 
-import dev from "$fresh/dev.ts";
-import config from "./fresh.config.ts";
+const builder = new Builder();
 
-await dev(import.meta.url, "./main.ts", config);
+if (import.meta.main) {
+  if (Deno.args.includes("build")) await builder.build(app);
+  else await builder.listen(app);
+}

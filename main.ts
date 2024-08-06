@@ -1,17 +1,25 @@
-/// <reference no-default-lib="true" />
-/// <reference lib="dom" />
-/// <reference lib="dom.iterable" />
-/// <reference lib="dom.asynciterable" />
-/// <reference lib="deno.ns" />
-/// <reference lib="deno.unstable" />
+import "@std/dotenv/load";
 
-import "$std/dotenv/load.ts";
+import { App, fsRoutes, staticFiles } from "fresh";
+import * as comlink from "comlink";
 
-import { start } from "$fresh/server.ts";
-import manifest from "./fresh.gen.ts";
-import config from "./fresh.config.ts";
-import { listen } from "~/utils/wa.ts";
-import { handle_message } from "~/utils/handler.ts";
+export const app = new App().use(staticFiles());
 
-listen(handle_message);
-await start(manifest, config);
+await fsRoutes(app, {
+  loadIsland: (path) => import(`./islands/${path}`),
+  loadRoute: (path) => import(`./routes/${path}`),
+});
+
+if (import.meta.main) {
+  const worker = comlink.wrap(
+    new Worker(
+      import.meta.resolve("./worker.ts"),
+      { type: "module" },
+    ),
+  );
+  app.use((ctx) => {
+    (ctx.state as Record<string, unknown>).worker = worker;
+    return ctx.next();
+  });
+  await app.listen();
+}
