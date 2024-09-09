@@ -25,7 +25,8 @@ export const CreatePromptInput = z.union([
 
 export async function createPrompt(input: CreatePromptInput) {
   if (input.type === "hub") {
-    return await pull<ChatPromptTemplate>(input.repo);
+    const prompt = await pull(input.repo) as unknown;
+    return prompt as ChatPromptTemplate;
   } else {
     return ChatPromptTemplate.fromMessages(input.messages);
   }
